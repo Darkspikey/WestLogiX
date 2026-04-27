@@ -1,0 +1,10 @@
+# requirements.txt
+# Basis (immer benötigt)
+ollama          # lokales LLM (Mistral, Llama, etc.)
+
+# Optional: Cloud-Modelle (kommentiere ein was du nutzt)
+openai          # GPT-4o etc.
+anthropic       # Claude Sonnet/Opus – empfohlen für komplexe SAP-Logik
+
+# Für spätere OData-Anbindung
+requests        # HTTP-Calls gegen SAP EWM OData
