@@ -108,10 +108,10 @@ def optimize_route(input_str: str) -> str:
 # ─── EWM: MITARBEITER-SCHEDULING ───────────────────────────────────────────────
 
 MOCK_EMPLOYEES = [
-    {"id": "EMP001", "name": "Max Müller",   "zone": "A",    "shift_end": "16:00", "break_until": None,       "picks_per_hour": 45},
-    {"id": "EMP002", "name": "Anna Schmidt", "zone": "B",    "shift_end": "14:30", "break_until": "13:15",    "picks_per_hour": 52},
+    {"id": "EMP001", "name": "Max Müller",   "zone": "A",    "shift_end": "24:00", "break_until": None,       "picks_per_hour": 45},
+    {"id": "EMP002", "name": "Anna Schmidt", "zone": "B",    "shift_end": "20:30", "break_until": "13:15",    "picks_per_hour": 52},
     {"id": "EMP003", "name": "Tom Fischer",  "zone": "A",    "shift_end": "18:00", "break_until": None,       "picks_per_hour": 38},
-    {"id": "EMP004", "name": "Lisa Weber",   "zone": "C",    "shift_end": "17:00", "break_until": None,       "picks_per_hour": 60},
+    {"id": "EMP004", "name": "Lisa Weber",   "zone": "C",    "shift_end": "19:00", "break_until": None,       "picks_per_hour": 60},
     {"id": "EMP005", "name": "Ben Koch",     "zone": "B",    "shift_end": "15:00", "break_until": "12:45",    "picks_per_hour": 41},
 ]
 
@@ -157,43 +157,84 @@ def schedule_employees(input_str: str) -> str:
 
 
 # ─── EWM: ETA-BERECHNUNG ───────────────────────────────────────────────────────
-
 def calculate_eta(input_str: str) -> str:
-    """
-    Berechnet voraussichtliche Fertigstellung eines Auftrags.
-    Input: 'auftrag_id:ANZAHL_PICKS' oder nur Anzahl Picks als Zahl.
-    Beispiel: 'WT4711:24' oder '24'
-    """
     try:
-        if ":" in input_str:
-            order_id, _, picks_str = input_str.partition(":")
-            order_id = order_id.strip()
-            n_picks = int(picks_str.strip())
-        else:
-            order_id = "Auftrag"
-            n_picks = int(input_str.strip())
-    except Exception:
-        return "Fehler: Input muss 'auftrag_id:anzahl_picks' oder eine Zahl sein."
+        parts = [p.strip() for p in input_str.split(",")]
 
-    # Verfügbare Mitarbeiter aus Mock
+        total_picks = 0
+        last_order_id = "Auftrag"
+
+        for part in parts:
+            if ":" in part:
+                order_id, picks_str = part.split(":")
+                last_order_id = order_id.strip()
+                total_picks += int(picks_str.strip())
+            else:
+                total_picks += int(part.strip())
+
+    except Exception:
+        return "Fehler: Input muss 'auftrag_id:anzahl_picks' oder mehrere davon sein."
+
+    # Mock employees
     now = datetime.now().strftime("%H:%M")
-    available = [e for e in MOCK_EMPLOYEES if not (e["break_until"] and e["break_until"] > now) and e["shift_end"] > now]
+    available = [
+        e for e in MOCK_EMPLOYEES
+        if not (e["break_until"] and e["break_until"] > now)
+        and e["shift_end"] > now
+    ]
 
     if not available:
         return "⚠️ Keine Mitarbeiter verfügbar – ETA kann nicht berechnet werden."
 
     best = max(available, key=lambda x: x["picks_per_hour"])
     picks_per_min = best["picks_per_hour"] / 60
-    duration_min = n_picks / picks_per_min
+    duration_min = total_picks / picks_per_min
     eta = datetime.now() + timedelta(minutes=duration_min)
 
     return (
-        f"📦 {order_id}: {n_picks} Picks\n"
+        f"📦 Aufträge: {parts}\n"
+        f"📊 Gesamt Picks: {total_picks}\n"
         f"👷 Bester Picker: {best['name']} ({best['picks_per_hour']} Picks/h)\n"
         f"⏱ Dauer: ca. {duration_min:.1f} Minuten\n"
         f"🎯 ETA: {eta.strftime('%H:%M')} Uhr\n"
         f"📊 Abweichung im Schnitt: ±4 Min"
     )
+# def calculate_eta(input_str: str) -> str:
+#     """
+#     Berechnet voraussichtliche Fertigstellung eines Auftrags.
+#     Input: 'auftrag_id:ANZAHL_PICKS' oder nur Anzahl Picks als Zahl.
+#     Beispiel: 'WT4711:24' oder '24'
+#     """
+#     try:
+#         if ":" in input_str:
+#             order_id, _, picks_str = input_str.partition(":")
+#             order_id = order_id.strip()
+#             n_picks = int(picks_str.strip())
+#         else:
+#             order_id = "Auftrag"
+#             n_picks = int(input_str.strip())
+#     except Exception:
+#         return "Fehler: Input muss 'auftrag_id:anzahl_picks' oder eine Zahl sein."
+
+#     # Verfügbare Mitarbeiter aus Mock
+#     now = datetime.now().strftime("%H:%M")
+#     available = [e for e in MOCK_EMPLOYEES if not (e["break_until"] and e["break_until"] > now) and e["shift_end"] > now]
+
+#     if not available:
+#         return "⚠️ Keine Mitarbeiter verfügbar – ETA kann nicht berechnet werden."
+
+#     best = max(available, key=lambda x: x["picks_per_hour"])
+#     picks_per_min = best["picks_per_hour"] / 60
+#     duration_min = n_picks / picks_per_min
+#     eta = datetime.now() + timedelta(minutes=duration_min)
+
+#     return (
+#         f"📦 {order_id}: {n_picks} Picks\n"
+#         f"👷 Bester Picker: {best['name']} ({best['picks_per_hour']} Picks/h)\n"
+#         f"⏱ Dauer: ca. {duration_min:.1f} Minuten\n"
+#         f"🎯 ETA: {eta.strftime('%H:%M')} Uhr\n"
+#         f"📊 Abweichung im Schnitt: ±4 Min"
+#     )
 
 
 # ─── TOOL REGISTRY ─────────────────────────────────────────────────────────────
