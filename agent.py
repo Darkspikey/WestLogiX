@@ -2,7 +2,6 @@
 import json
 import re
 import logging
-from datetime import datetime
 from config import (
     MODEL_PROVIDER, MODEL_NAME, MAX_STEPS, TEMPERATURE,
     LOG_FILE, ANTHROPIC_API_KEY, OPENAI_API_KEY
@@ -26,8 +25,6 @@ log = logging.getLogger("westlogix")
 # ─── LLM-Adapter ───────────────────────────────────────────────────────────────
 
 def llm_call(messages: list) -> str:
-    """Einheitlicher LLM-Call – unterstützt Ollama, OpenAI, Anthropic."""
-
     if MODEL_PROVIDER == "ollama":
         import ollama
         response = ollama.chat(
@@ -50,14 +47,12 @@ def llm_call(messages: list) -> str:
     elif MODEL_PROVIDER == "anthropic":
         import anthropic
         client = anthropic.Anthropic(api_key=ANTHROPIC_API_KEY)
-        # System-Nachricht separat herausfiltern
         system_msgs = [m["content"] for m in messages if m["role"] == "system"]
         user_msgs   = [m for m in messages if m["role"] != "system"]
-        system_text = "\n\n".join(system_msgs)
         response = client.messages.create(
             model=MODEL_NAME,
             max_tokens=1024,
-            system=system_text,
+            system="\n\n".join(system_msgs),
             messages=user_msgs,
             temperature=TEMPERATURE
         )
@@ -70,27 +65,22 @@ def llm_call(messages: list) -> str:
 # ─── JSON-Extraktion ────────────────────────────────────────────────────────────
 
 def extract_json(text: str) -> dict | None:
-    """
-    Robuste JSON-Extraktion: findet das äußerste { ... } im Text.
-    Funktioniert auch wenn das Modell Prosa davor/danach ausgibt.
-    """
-    # Strategie 1: direkt parsen
+    # Strategie 1: direkt
     try:
         return json.loads(text.strip())
     except Exception:
         pass
 
-    # Strategie 2: äußerstes { ... } extrahieren
+    # Strategie 2: äußerstes { ... }
     start = text.find("{")
     end   = text.rfind("}")
     if start != -1 and end != -1 and end > start:
-        candidate = text[start:end+1]
         try:
-            return json.loads(candidate)
+            return json.loads(text[start:end+1])
         except Exception:
             pass
 
-    # Strategie 3: Markdown-Codeblock entfernen
+    # Strategie 3: Markdown-Backticks entfernen
     cleaned = re.sub(r"```(?:json)?", "", text).strip()
     start = cleaned.find("{")
     end   = cleaned.rfind("}")
@@ -100,7 +90,7 @@ def extract_json(text: str) -> dict | None:
         except Exception:
             pass
 
-    log.warning(f"JSON-Extraktion fehlgeschlagen für: {text[:200]}")
+    log.warning(f"JSON-Extraktion fehlgeschlagen: {text[:200]}")
     return None
 
 
@@ -110,7 +100,7 @@ def normalize_expression(expr: str) -> str:
     return expr
 
 
-# ─── Agent-Loop ─────────────────────────────────────────────────────────────────
+# ─── System Prompt ─────────────────────────────────────────────────────────────
 
 SYSTEM_PROMPT = """
 Du bist WestLogiX AI Agent – ein intelligenter Lageroptimierungs-Assistent für SAP EWM.
@@ -122,19 +112,27 @@ Deine Aufgaben:
 - Fakten speichern und abrufen
 - Berechnungen durchführen
 
-WICHTIG: Antworte IMMER mit genau einem JSON-Objekt. Kein Text außerhalb.
+WICHTIGSTE REGELN:
+1. Antworte IMMER mit genau einem JSON-Objekt. Kein Text außerhalb.
+2. Bei Begrüßungen oder einfachen Fragen ("Hallo", "Wie heiße ich?") → sofort tool="none" + final setzen.
+3. Rufe NIEMALS dasselbe Tool zweimal hintereinander mit identischem Input auf.
+4. Antworte immer auf Deutsch.
 """
 
 
+# ─── Agent-Loop ─────────────────────────────────────────────────────────────────
+
 def run_agent(user_input: str) -> str:
     log.info(f"User: {user_input}")
-    last_result = None
-    reset_count = 0
+
+    # Loop-Detection: (tool, input) Tupel – nicht nur Result
+    last_tool_call = None
+    reset_count    = 0
 
     messages = [
-        {"role": "system",  "content": SYSTEM_PROMPT},
-        {"role": "system",  "content": get_schema()},
-        {"role": "user",    "content": user_input}
+        {"role": "system", "content": SYSTEM_PROMPT},
+        {"role": "system", "content": get_schema()},
+        {"role": "user",   "content": user_input}
     ]
 
     for step in range(MAX_STEPS):
@@ -146,7 +144,7 @@ def run_agent(user_input: str) -> str:
             log.error(f"LLM-Fehler: {ex}")
             return f"❌ LLM nicht erreichbar: {ex}"
 
-        log.info(f"Raw output: {raw_output[:300]}")
+        log.info(f"Raw: {raw_output[:300]}")
 
         data = extract_json(raw_output)
 
@@ -154,72 +152,79 @@ def run_agent(user_input: str) -> str:
             reset_count += 1
             if reset_count >= 3:
                 return "❌ Agent konnte kein valides JSON erzeugen."
-            log.warning("Kein JSON – sende Korrektur-Hint")
             messages.append({
                 "role": "user",
-                "content": "FEHLER: Deine Antwort war kein valides JSON. Antworte NUR mit einem JSON-Objekt."
+                "content": "FEHLER: Keine valide JSON-Antwort. Antworte NUR mit einem JSON-Objekt, kein Text davor/danach."
             })
             continue
 
         thought = data.get("thought", "")
         tool    = data.get("tool",    "none")
-        arg     = data.get("input",   "")
-        final   = data.get("final",   "")
+        arg     = str(data.get("input", "")).strip()
+        final   = str(data.get("final", "")).strip()
 
-        log.info(f"Thought: {thought}")
-        log.info(f"Tool: {tool}, Input: {arg}")
-
+        log.info(f"Thought: {thought} | Tool: {tool} | Input: {arg[:80]}")
         print(f"\n{'─'*50}")
         print(f"🧠 {thought}")
 
         # ── FERTIG ──
         if tool == "none":
-            reflection = reflect(user_input, last_result, final)
+            if not final:
+                messages.append({
+                    "role": "user",
+                    "content": "Du hast tool=none gesetzt aber 'final' ist leer. Schreibe jetzt deine Antwort in 'final'."
+                })
+                continue
+            reflection = reflect(user_input, None, final)
             log.info(f"Reflection: {reflection}")
-            if reflection.get("correct"):
-                log.info(f"Final answer: {final}")
-                return final
-            else:
-                fixed = reflection.get("fix", final)
-                log.info(f"Corrected answer: {fixed}")
-                return fixed
+            return reflection.get("fix", final) if not reflection.get("correct") else final
 
-        # ── TOOL-DISPATCH ──
+        # ── UNBEKANNTES TOOL ──
         if tool not in TOOLS:
             messages.append({
                 "role": "user",
-                "content": f"FEHLER: Tool '{tool}' existiert nicht. Nutze: {list(TOOLS.keys())}"
+                "content": f"FEHLER: Tool '{tool}' existiert nicht. Verfügbare Tools: {list(TOOLS.keys())}"
             })
             continue
 
-        # Spezial-Validierung für calculate
+        # ── LOOP-DETECTION: (tool, input) Paar ──
+        current_call = (tool, arg)
+        if current_call == last_tool_call:
+            log.warning(f"Loop bei {tool}({arg[:40]}) – erzwinge Abschluss")
+            messages.append({
+                "role": "user",
+                "content": "Du rufst dasselbe Tool mit identischem Input nochmals auf. Nutze jetzt tool='none' und schreibe deine finale Antwort in 'final'."
+            })
+            continue
+        last_tool_call = current_call
+
+        # ── Validierung calculate ──
         if tool == "calculate":
             arg = normalize_expression(arg)
             if not is_valid_calculation(arg):
                 messages.append({
                     "role": "user",
-                    "content": f"FEHLER: Ausdruck '{arg}' enthält ungültige Zeichen."
+                    "content": f"FEHLER: '{arg}' enthält ungültige Zeichen. Nur Zahlen, +,-,*,/,(,),sqrt,** erlaubt."
                 })
                 continue
 
+        # ── Tool ausführen ──
         try:
-            result = TOOLS[tool](arg)
+            result = TOOLS[tool](arg if arg else None)
         except Exception as ex:
             result = f"Tool-Fehler: {ex}"
 
-        log.info(f"Tool result: {result}")
+        log.info(f"Tool result: {str(result)[:200]}")
         print(f"🔧 [{tool}] → {result}")
-
-        # Loop-Erkennung
-        if result == last_result:
-            log.warning("Loop erkannt – breche ab")
-            return str(result)
-        last_result = result
 
         messages.append({
             "role": "user",
-            "content": f"TOOL RESULT ({tool}):\n{result}"
+            "content": (
+                f"TOOL RESULT ({tool}):\n{result}\n\n"
+                "Beantworte jetzt die ursprüngliche Frage des Users basierend auf diesem Ergebnis. "
+                "Setze tool='none' und schreibe deine Antwort in 'final'."
+            )
         })
 
     log.error("Max Steps erreicht")
-    return "❌ Maximale Schritte erreicht – Aufgabe zu komplex."
+    return "❌ Maximale Schritte erreicht."
