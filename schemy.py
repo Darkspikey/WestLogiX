@@ -21,7 +21,8 @@ VERFÜGBARE TOOLS:
   calculate          → Rechenausdruck: "20 / 5" oder "sqrt(144)"
   save_memory        → Fakt speichern: "Name: Kevin"
   load_memory        → Alle Fakten laden (kein Input)
-  optimize_route     → Zonen kommagetrennt: "A, C, B" ODER JSON-Array
+  optimize_route     → Zonen kommagetrennt: "A, C, B, A" ODER JSON-Array mit {"id":"WT001","zone":"A"}
+                       WICHTIG: Nur diese Zonen existieren: A, B, C, D
   schedule_employees → Zone oder "all"
   calculate_eta      → "WT4711:24" oder nur "24"
   ewm_get_tasks      → Lageraufgaben aus SAP EWM holen (kein Input nötig)
