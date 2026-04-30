@@ -1,0 +1,455 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WestLogiX – KI-Optimierung für SAP EWM</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg:#060709;--s1:#0d1117;--s2:#131920;
+  --border:rgba(255,255,255,0.06);--border2:rgba(255,255,255,0.11);
+  --text:#e8edf3;--muted:#5a6475;--muted2:#8896a8;
+  --accent:#00e5a0;--accent2:#0af;--purple:#a78bfa;
+  --mono:'IBM Plex Mono',monospace;
+  --display:'Syne',sans-serif;
+  --body:'DM Sans',sans-serif;
+}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--text);font-family:var(--body);overflow-x:hidden}
+/* NAV */
+nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:0 40px;height:60px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border);background:rgba(6,7,9,0.85);backdrop-filter:blur(12px)}
+.nav-logo{display:flex;align-items:center;gap:10px}
+.nav-mark{width:30px;height:30px;background:var(--accent);border-radius:7px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.nav-mark svg{width:16px;height:16px}
+.nav-name{font-family:var(--display);font-weight:700;font-size:16px;letter-spacing:-0.3px}
+.nav-links{display:flex;align-items:center;gap:32px}
+.nav-links a{color:var(--muted2);text-decoration:none;font-size:14px;transition:color 0.15s}
+.nav-links a:hover{color:var(--text)}
+.nav-cta{padding:8px 20px;background:var(--accent);color:#060709;border-radius:6px;font-size:14px;font-weight:600;text-decoration:none;transition:opacity 0.15s}
+.nav-cta:hover{opacity:0.85;color:#060709}
+/* HERO */
+.hero{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:120px 24px 80px;position:relative;overflow:hidden}
+.hero-grid{position:absolute;inset:0;background-image:linear-gradient(var(--border) 1px,transparent 1px),linear-gradient(90deg,var(--border) 1px,transparent 1px);background-size:60px 60px;opacity:0.4;mask-image:radial-gradient(ellipse 80% 60% at 50% 50%,black,transparent)}
+.hero-glow{position:absolute;top:20%;left:50%;transform:translateX(-50%);width:600px;height:300px;background:radial-gradient(ellipse,rgba(0,229,160,0.12) 0%,transparent 70%);pointer-events:none}
+.hero-tag{display:inline-flex;align-items:center;gap:8px;padding:6px 14px;border:1px solid rgba(0,229,160,0.25);border-radius:20px;font-size:12px;font-family:var(--mono);color:var(--accent);margin-bottom:32px;background:rgba(0,229,160,0.05)}
+.hero-tag-dot{width:6px;height:6px;border-radius:50%;background:var(--accent);animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.3}}
+h1{font-family:var(--display);font-size:clamp(42px,7vw,88px);font-weight:800;line-height:0.95;letter-spacing:-2px;margin-bottom:28px;max-width:900px}
+h1 .accent{color:var(--accent)}
+.hero-sub{font-size:clamp(16px,2vw,20px);color:var(--muted2);max-width:560px;line-height:1.6;margin-bottom:48px;font-weight:300}
+.hero-ctas{display:flex;align-items:center;gap:16px;flex-wrap:wrap;justify-content:center}
+.btn-primary{padding:14px 32px;background:var(--accent);color:#060709;border-radius:8px;font-size:15px;font-weight:600;text-decoration:none;transition:all 0.15s}
+.btn-primary:hover{opacity:0.88;transform:translateY(-1px)}
+.btn-secondary{padding:14px 32px;border:1px solid var(--border2);color:var(--text);border-radius:8px;font-size:15px;text-decoration:none;transition:all 0.15s}
+.btn-secondary:hover{border-color:var(--accent);color:var(--accent)}
+.hero-proof{margin-top:64px;display:flex;align-items:center;gap:32px;flex-wrap:wrap;justify-content:center}
+.proof-num{font-family:var(--display);font-size:32px;font-weight:800;letter-spacing:-1px}
+.proof-num.g{color:var(--accent)}.proof-num.b{color:var(--accent2)}.proof-num.p{color:var(--purple)}
+.proof-label{font-size:12px;color:var(--muted);font-family:var(--mono);margin-top:4px;text-align:center}
+.proof-sep{width:1px;height:40px;background:var(--border2)}
+/* TICKER */
+.ticker{border-top:1px solid var(--border);border-bottom:1px solid var(--border);padding:14px 0;overflow:hidden;background:var(--s1)}
+.ticker-inner{display:flex;gap:48px;animation:ticker 22s linear infinite;width:max-content}
+@keyframes ticker{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
+.ticker-item{display:flex;align-items:center;gap:10px;white-space:nowrap;font-size:13px;font-family:var(--mono);color:var(--muted2)}
+.tok{color:var(--accent)}
+/* SECTIONS */
+.sec{padding:96px 40px;max-width:1100px;margin:0 auto}
+.sec-tag{font-size:11px;font-family:var(--mono);color:var(--accent);letter-spacing:2px;text-transform:uppercase;margin-bottom:16px}
+.sec-title{font-family:var(--display);font-size:clamp(28px,4vw,48px);font-weight:700;letter-spacing:-1px;line-height:1.1;margin-bottom:20px}
+.sec-sub{font-size:17px;color:var(--muted2);line-height:1.65;max-width:580px;font-weight:300}
+/* PROBLEM CARDS */
+.problem-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:52px}
+.pcard{padding:28px;border:1px solid var(--border);border-radius:12px;background:var(--s1);transition:border-color 0.2s}
+.pcard:hover{border-color:var(--border2)}
+.pcard-icon{font-size:28px;margin-bottom:16px}
+.pcard-title{font-family:var(--display);font-size:18px;font-weight:700;margin-bottom:10px}
+.pcard-text{font-size:14px;color:var(--muted2);line-height:1.6}
+.pcard-stat{margin-top:16px;padding-top:14px;border-top:1px solid var(--border);font-size:12px;font-family:var(--mono);color:var(--accent)}
+/* HOW IT WORKS */
+.how-wrap{padding:96px 40px;background:var(--s1);border-top:1px solid var(--border);border-bottom:1px solid var(--border)}
+.how-inner{max-width:1100px;margin:0 auto}
+.steps{display:grid;grid-template-columns:repeat(4,1fr);gap:0;margin-top:52px;position:relative}
+.steps::before{content:'';position:absolute;top:28px;left:12.5%;right:12.5%;height:1px;background:linear-gradient(90deg,transparent,var(--border2),var(--accent),var(--border2),transparent)}
+.step{text-align:center;padding:0 16px}
+.step-num{width:56px;height:56px;border-radius:50%;border:1px solid var(--border2);display:flex;align-items:center;justify-content:center;margin:0 auto 20px;font-family:var(--mono);font-size:14px;background:var(--s2);position:relative;z-index:1;transition:all 0.2s}
+.step:hover .step-num{border-color:var(--accent);color:var(--accent)}
+.step-title{font-family:var(--display);font-size:16px;font-weight:700;margin-bottom:8px}
+.step-text{font-size:13px;color:var(--muted2);line-height:1.6}
+.step-tag{display:inline-block;margin-top:10px;font-size:11px;font-family:var(--mono);padding:3px 8px;border-radius:4px;background:rgba(0,229,160,0.08);color:var(--accent)}
+/* FEATURES */
+.feat-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:16px;margin-top:52px}
+.fcard{padding:32px;border:1px solid var(--border);border-radius:12px;background:var(--s1);transition:all 0.2s;position:relative;overflow:hidden}
+.fcard::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--accent),transparent);opacity:0;transition:opacity 0.2s}
+.fcard:hover{border-color:var(--border2);transform:translateY(-2px)}
+.fcard:hover::before,.fcard.hl::before{opacity:1}
+.fcard.hl{border-color:rgba(0,229,160,0.2);background:rgba(0,229,160,0.03)}
+.fcard-hdr{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:16px}
+.fcard-icon{width:40px;height:40px;border-radius:10px;border:1px solid var(--border2);display:flex;align-items:center;justify-content:center;font-size:18px}
+.badge{font-size:11px;font-family:var(--mono);padding:3px 8px;border-radius:4px}
+.badge-live{background:rgba(0,229,160,0.1);color:var(--accent)}
+.badge-soon{background:rgba(167,139,250,0.1);color:var(--purple)}
+.fcard-title{font-family:var(--display);font-size:20px;font-weight:700;margin-bottom:10px}
+.fcard-text{font-size:14px;color:var(--muted2);line-height:1.65}
+.fcard-metric{margin-top:20px;display:flex;align-items:baseline;gap:6px}
+.fcard-val{font-family:var(--display);font-size:28px;font-weight:800;color:var(--accent)}
+.fcard-lbl{font-size:13px;color:var(--muted);font-family:var(--mono)}
+/* ROI */
+.roi-wrap{padding:96px 40px;background:linear-gradient(180deg,var(--s1),var(--bg));border-top:1px solid var(--border)}
+.roi-inner{max-width:1100px;margin:0 auto}
+.roi-grid{display:grid;grid-template-columns:1fr 1fr;gap:48px;align-items:start;margin-top:52px}
+.roi-table{border:1px solid var(--border);border-radius:12px;overflow:hidden}
+.roi-row{display:grid;grid-template-columns:1fr 1fr 1fr;padding:13px 18px;border-bottom:1px solid var(--border);font-size:14px}
+.roi-row:last-child{border-bottom:none}
+.roi-row.hdr{background:var(--s2);font-size:11px;font-family:var(--mono);color:var(--muted);text-transform:uppercase;letter-spacing:0.5px}
+.v-before{color:var(--muted2)}
+.v-after{color:var(--accent);font-weight:500;font-family:var(--mono)}
+.roi-total{margin-top:14px;padding:20px;border:1px solid rgba(0,229,160,0.2);border-radius:12px;background:rgba(0,229,160,0.04);text-align:center}
+.roi-total-num{font-family:var(--display);font-size:40px;font-weight:800;color:var(--accent)}
+.roi-total-label{font-size:12px;color:var(--muted2);margin-top:4px;font-family:var(--mono)}
+.roi-bars{display:flex;flex-direction:column;gap:18px}
+.rbar-label{display:flex;justify-content:space-between;font-size:13px;font-family:var(--mono);color:var(--muted2);margin-bottom:6px}
+.rbar-track{height:10px;background:var(--s2);border-radius:5px;overflow:hidden;position:relative}
+.rbar-before{position:absolute;left:0;top:0;bottom:0;background:rgba(255,255,255,0.06);border-radius:5px}
+.rbar-after{position:absolute;left:0;top:0;bottom:0;background:var(--accent);border-radius:5px;opacity:0.85}
+.amort-box{margin-top:24px;padding:20px;border:1px solid var(--border);border-radius:10px;background:var(--s2);display:flex;justify-content:space-between;align-items:center}
+.amort-val{font-family:var(--display);font-size:36px;font-weight:800;color:var(--accent)}
+.amort-lbl{font-size:12px;font-family:var(--mono);color:var(--muted);margin-top:2px}
+/* PRICING */
+.pricing-wrap{padding:96px 40px;border-top:1px solid var(--border)}
+.pricing-inner{max-width:920px;margin:0 auto;text-align:center}
+.pricing-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:52px;text-align:left}
+.pricec{padding:30px;border:1px solid var(--border);border-radius:12px;background:var(--s1);transition:all 0.2s}
+.pricec.feat{border-color:rgba(0,229,160,0.35);background:rgba(0,229,160,0.04);transform:scale(1.02)}
+.p-name{font-family:var(--mono);font-size:11px;text-transform:uppercase;letter-spacing:1px;color:var(--muted);margin-bottom:14px}
+.p-price{font-family:var(--display);font-size:38px;font-weight:800;letter-spacing:-1px}
+.p-per{font-size:13px;color:var(--muted);font-family:var(--mono);margin-bottom:14px}
+.p-desc{font-size:14px;color:var(--muted2);margin-bottom:20px;line-height:1.6}
+.p-feats{list-style:none;display:flex;flex-direction:column;gap:9px;margin-bottom:24px}
+.p-feats li{font-size:14px;color:var(--muted2);display:flex;align-items:center;gap:8px}
+.p-feats li::before{content:'✓';color:var(--accent);font-family:var(--mono);font-size:12px;flex-shrink:0}
+.p-feats li.soon{opacity:0.45}
+.p-feats li.soon::before{content:'○';color:var(--muted)}
+.p-btn{width:100%;padding:12px;border-radius:7px;font-size:14px;font-weight:600;cursor:pointer;transition:all 0.15s;border:none;font-family:var(--body)}
+.p-btn.main{background:var(--accent);color:#060709}
+.p-btn.main:hover{opacity:0.88}
+.p-btn.out{background:transparent;color:var(--text);border:1px solid var(--border2)}
+.p-btn.out:hover{border-color:var(--accent);color:var(--accent)}
+.p-tag{display:inline-block;padding:3px 10px;border-radius:4px;font-size:11px;font-family:var(--mono);background:rgba(0,229,160,0.1);color:var(--accent);margin-bottom:10px}
+/* WAITLIST */
+.wl-wrap{padding:96px 40px;border-top:1px solid var(--border);background:var(--s1)}
+.wl-inner{max-width:580px;margin:0 auto;text-align:center}
+.wl-form{display:flex;gap:10px;margin-top:32px}
+.wl-input{flex:1;padding:12px 16px;background:var(--s2);border:1px solid var(--border2);border-radius:7px;color:var(--text);font-size:15px;font-family:var(--body);outline:none;transition:border-color 0.15s}
+.wl-input:focus{border-color:var(--accent)}
+.wl-input::placeholder{color:var(--muted)}
+.wl-btn{padding:12px 24px;background:var(--accent);color:#060709;border:none;border-radius:7px;font-size:15px;font-weight:600;cursor:pointer;font-family:var(--body);transition:opacity 0.15s;white-space:nowrap}
+.wl-btn:hover{opacity:0.88}
+.wl-note{margin-top:14px;font-size:13px;color:var(--muted);font-family:var(--mono)}
+.wl-social{margin-top:24px;display:flex;align-items:center;justify-content:center;gap:10px}
+.wl-avs{display:flex}
+.wl-av{width:28px;height:28px;border-radius:50%;border:2px solid var(--s1);margin-left:-8px;font-size:11px;font-weight:600;display:flex;align-items:center;justify-content:center}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-logo">
+    <div class="nav-mark">
+      <svg viewBox="0 0 16 16" fill="none"><rect x="2" y="10" width="3" height="4" rx="1" fill="#060709"/><rect x="6.5" y="6" width="3" height="8" rx="1" fill="#060709"/><rect x="11" y="2" width="3" height="12" rx="1" fill="#060709"/></svg>
+    </div>
+    <span class="nav-name">WestLogiX</span>
+  </div>
+  <div class="nav-links">
+    <a href="#features">Features</a>
+    <a href="#roi">ROI</a>
+    <a href="#pricing">Preise</a>
+    <a href="#waitlist">Kontakt</a>
+  </div>
+  <a href="#waitlist" class="nav-cta">Früher Zugang sichern</a>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-grid"></div>
+  <div class="hero-glow"></div>
+  <div class="hero-tag"><div class="hero-tag-dot"></div>KI-gestützt · SAP EWM nativ · Echtzeit</div>
+  <h1>Dein Lager.<br><span class="accent">Endlich intelligent.</span></h1>
+  <p class="hero-sub">WestLogiX optimiert Wegezeiten, Mitarbeiter-Einsatz und Auftragsprognosen – direkt in SAP EWM. Kein Umbau. Kein Aufwand. Sofort messbar.</p>
+  <div class="hero-ctas">
+    <a href="#waitlist" class="btn-primary">Jetzt auf die Waitlist</a>
+    <a href="#roi" class="btn-secondary">ROI berechnen →</a>
+  </div>
+  <div class="hero-proof">
+    <div><div class="proof-num g">–62%</div><div class="proof-label">Wegezeit</div></div>
+    <div class="proof-sep"></div>
+    <div><div class="proof-num b">±4 Min</div><div class="proof-label">ETA Genauigkeit</div></div>
+    <div class="proof-sep"></div>
+    <div><div class="proof-num p">+20%</div><div class="proof-label">Pick-Kapazität</div></div>
+  </div>
+</section>
+
+<!-- TICKER -->
+<div class="ticker">
+  <div class="ticker-inner">
+    <span class="ticker-item"><span class="tok">✓</span> Route optimiert · 10 Aufträge · 62% Einsparung</span>
+    <span class="ticker-item"><span class="tok">✓</span> ETA WT4711 → 14:36 Uhr · Abweichung ±4 Min</span>
+    <span class="ticker-item"><span class="tok">✓</span> 4/5 Picker verfügbar · 236 Picks/h Kapazität</span>
+    <span class="ticker-item"><span class="tok">✓</span> SAP EWM Live-Sync · /SCWM/ORDIM_C · 24 Tasks</span>
+    <span class="ticker-item"><span class="tok">✓</span> Engpass Zone B erkannt · Neuplanung in 12 Sek</span>
+    <span class="ticker-item"><span class="tok">✓</span> Route optimiert · 10 Aufträge · 62% Einsparung</span>
+    <span class="ticker-item"><span class="tok">✓</span> ETA WT4711 → 14:36 Uhr · Abweichung ±4 Min</span>
+    <span class="ticker-item"><span class="tok">✓</span> 4/5 Picker verfügbar · 236 Picks/h Kapazität</span>
+    <span class="ticker-item"><span class="tok">✓</span> SAP EWM Live-Sync · /SCWM/ORDIM_C · 24 Tasks</span>
+    <span class="ticker-item"><span class="tok">✓</span> Engpass Zone B erkannt · Neuplanung in 12 Sek</span>
+  </div>
+</div>
+
+<!-- PROBLEM -->
+<div class="sec">
+  <div class="sec-tag">Das Problem</div>
+  <div class="sec-title">SAP EWM verwaltet.<br>Aber optimiert es wirklich?</div>
+  <p class="sec-sub">EWM ist mächtig – aber seine Strategien sind statisch. Kein System weiß was deine Picker gerade tun, wann sie Pause haben, oder welche Route heute wirklich Sinn macht.</p>
+  <div class="problem-grid">
+    <div class="pcard">
+      <div class="pcard-icon">🗺️</div>
+      <div class="pcard-title">Lange Wegezeiten</div>
+      <div class="pcard-text">SAP EWM vergibt Lageraufgaben ohne die aktuelle Picker-Position oder optimale Reihenfolge zu kennen. Picker laufen täglich Kilometer zu viel.</div>
+      <div class="pcard-stat">↑ 35% der Schichtzeit = reine Laufzeit</div>
+    </div>
+    <div class="pcard">
+      <div class="pcard-icon">⏸️</div>
+      <div class="pcard-title">Unplanbare Pausen</div>
+      <div class="pcard-text">Pausen- und Fokuszeiten sind für EWM unsichtbar. Aufträge landen bei Mitarbeitern die gerade nicht verfügbar sind – ohne dass jemand es merkt.</div>
+      <div class="pcard-stat">↑ Ø 18 Min Wartezeit pro kritischem Auftrag</div>
+    </div>
+    <div class="pcard">
+      <div class="pcard-icon">❓</div>
+      <div class="pcard-title">Keine echte ETA</div>
+      <div class="pcard-text">"Wann ist der Auftrag fertig?" – Diese Frage kann kein System sicher beantworten. Versand plant mit Puffer, Kunden warten, Lkw stehen leer.</div>
+      <div class="pcard-stat">↓ Liefertreue um bis zu 40% gedrückt</div>
+    </div>
+  </div>
+</div>
+
+<!-- HOW IT WORKS -->
+<div class="how-wrap">
+  <div class="how-inner">
+    <div class="sec-tag">So funktioniert es</div>
+    <div class="sec-title">Plug-in. Nicht Umbau.</div>
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">01</div>
+        <div class="step-title">SAP EWM verbinden</div>
+        <div class="step-text">OData-Schnittstelle zu deinem EWM-System. Kein ABAP-Umbau, keine Datenmigration. Setup in unter 2 Stunden.</div>
+        <span class="step-tag">OData / SEGW</span>
+      </div>
+      <div class="step">
+        <div class="step-num">02</div>
+        <div class="step-title">KI lernt dein Lager</div>
+        <div class="step-text">Der Agent analysiert Bewegungshistorie, Lagerstruktur, Mitarbeiter-Performance und Pausenmuster automatisch.</div>
+        <span class="step-tag">ML · Echtzeit</span>
+      </div>
+      <div class="step">
+        <div class="step-num">03</div>
+        <div class="step-title">Optimierung startet</div>
+        <div class="step-text">Routen werden in Echtzeit optimiert. Aufträge gehen an den richtigen Picker. ETA wird sekundengenau berechnet.</div>
+        <span class="step-tag">Automatisch</span>
+      </div>
+      <div class="step">
+        <div class="step-num">04</div>
+        <div class="step-title">Messbarer Impact</div>
+        <div class="step-text">Dashboard zeigt live: gesparte Wegezeit, Kapazität, ETA-Genauigkeit. ROI in Woche 1 sichtbar.</div>
+        <span class="step-tag">Live Dashboard</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- FEATURES -->
+<div id="features" class="sec">
+  <div class="sec-tag">Features</div>
+  <div class="sec-title">Drei Module.<br>Ein System.</div>
+  <div class="feat-grid">
+    <div class="fcard hl">
+      <div class="fcard-hdr"><div class="fcard-icon">🗺️</div><span class="badge badge-live">Live</span></div>
+      <div class="fcard-title">Smart Route Engine</div>
+      <div class="fcard-text">Nearest-Neighbor TSP-Algorithmus berechnet in Echtzeit die optimale Pick-Reihenfolge – basierend auf aktuellen Lageraufgaben, Lagerstruktur und Picker-Position.</div>
+      <div class="fcard-metric"><span class="fcard-val">–62%</span><span class="fcard-lbl">Wegezeit im Schnitt</span></div>
+    </div>
+    <div class="fcard">
+      <div class="fcard-hdr"><div class="fcard-icon">👷</div><span class="badge badge-live">Live</span></div>
+      <div class="fcard-title">Picker Intelligence</div>
+      <div class="fcard-text">Wer ist verfügbar? Wer hat Pause? Wer ist der schnellste für diese Zone? WestLogiX weiß es – und verteilt Aufträge proaktiv an den richtigen Mitarbeiter.</div>
+      <div class="fcard-metric"><span class="fcard-val">+20%</span><span class="fcard-lbl">Kapazität ohne neue Picker</span></div>
+    </div>
+    <div class="fcard">
+      <div class="fcard-hdr"><div class="fcard-icon">⏱️</div><span class="badge badge-live">Live</span></div>
+      <div class="fcard-title">ETA Engine</div>
+      <div class="fcard-text">Echtzeit-ETA für jeden Auftrag – berücksichtigt Picker-Performance, aktuelle Kapazität und Wegezeit. Versand plant. Lkw fahren pünktlich.</div>
+      <div class="fcard-metric"><span class="fcard-val">±4 Min</span><span class="fcard-lbl">statt ±45 Min Abweichung</span></div>
+    </div>
+    <div class="fcard">
+      <div class="fcard-hdr"><div class="fcard-icon">📡</div><span class="badge badge-soon">Q3 2026</span></div>
+      <div class="fcard-title">EWM Forecast</div>
+      <div class="fcard-text">KI prognostiziert Einlagerungs- und Auslagerungsvolumen 24h im Voraus. Lagerleiter weiß morgen früh: heute kommen 3× mehr Paletten als üblich.</div>
+      <div class="fcard-metric"><span class="fcard-val" style="color:var(--purple)">24h</span><span class="fcard-lbl">Vorausplanung</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- ROI -->
+<div id="roi" class="roi-wrap">
+  <div class="roi-inner">
+    <div class="sec-tag">ROI Kalkulator</div>
+    <div class="sec-title">Was bringt es konkret?</div>
+    <p class="sec-sub">Ein mittelgroßes Lager mit 30 Pickern amortisiert WestLogiX in weniger als einer Woche.</p>
+    <div class="roi-grid">
+      <div>
+        <div class="roi-table">
+          <div class="roi-row hdr"><span>Kennzahl</span><span>Vorher</span><span>Mit WestLogiX</span></div>
+          <div class="roi-row"><span>Wegezeit/Schicht</span><span class="v-before">35%</span><span class="v-after">13%</span></div>
+          <div class="roi-row"><span>ETA Genauigkeit</span><span class="v-before">±45 Min</span><span class="v-after">±4 Min</span></div>
+          <div class="roi-row"><span>Picks/Stunde</span><span class="v-before">38 Ø</span><span class="v-after">46 Ø</span></div>
+          <div class="roi-row"><span>Planungsaufwand</span><span class="v-before">2h/Tag</span><span class="v-after">15 Min/Tag</span></div>
+        </div>
+        <div class="roi-total">
+          <div class="roi-total-num">€4.200</div>
+          <div class="roi-total-label">Ersparnis/Monat · 30 Picker · 8h Schicht</div>
+        </div>
+      </div>
+      <div>
+        <div class="roi-bars">
+          <div>
+            <div class="rbar-label"><span>Wegezeit</span><span style="color:var(--accent)">–62%</span></div>
+            <div class="rbar-track"><div class="rbar-before" style="width:100%"></div><div class="rbar-after" style="width:38%"></div></div>
+          </div>
+          <div>
+            <div class="rbar-label"><span>ETA Genauigkeit</span><span style="color:var(--accent)">+91%</span></div>
+            <div class="rbar-track"><div class="rbar-before" style="width:9%"></div><div class="rbar-after" style="width:100%"></div></div>
+          </div>
+          <div>
+            <div class="rbar-label"><span>Pick-Kapazität</span><span style="color:var(--accent)">+21%</span></div>
+            <div class="rbar-track"><div class="rbar-before" style="width:79%"></div><div class="rbar-after" style="width:100%"></div></div>
+          </div>
+          <div>
+            <div class="rbar-label"><span>Planungsaufwand</span><span style="color:var(--accent)">–87%</span></div>
+            <div class="rbar-track"><div class="rbar-before" style="width:100%"></div><div class="rbar-after" style="width:13%"></div></div>
+          </div>
+        </div>
+        <div class="amort-box">
+          <div><div class="amort-val">4,8</div><div class="amort-lbl">Tage bis ROI</div></div>
+          <div style="text-align:right">
+            <div style="font-size:13px;color:var(--muted2)">Kosten: 800 €/Monat</div>
+            <div style="font-size:13px;color:var(--muted2)">Einsparung: 4.200 €/Monat</div>
+            <div style="font-size:14px;color:var(--accent);margin-top:6px;font-family:var(--mono);font-weight:500">= +3.400 €/Monat</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- PRICING -->
+<div id="pricing" class="pricing-wrap">
+  <div class="pricing-inner">
+    <div class="sec-tag">Preise</div>
+    <div class="sec-title">Einfach. Transparent. Fair.</div>
+    <div class="pricing-grid">
+      <div class="pricec">
+        <div class="p-name">Starter</div>
+        <div class="p-price">€800</div>
+        <div class="p-per">/Monat · 1 Standort</div>
+        <div class="p-desc">Perfekt für mittelgroße Lager die sofort starten wollen.</div>
+        <ul class="p-feats">
+          <li>Smart Route Engine</li>
+          <li>Picker Intelligence</li>
+          <li>ETA Dashboard</li>
+          <li>SAP EWM OData Connect</li>
+          <li class="soon">EWM Forecast</li>
+          <li class="soon">Multi-Standort</li>
+        </ul>
+        <button class="p-btn out" onclick="document.getElementById('waitlist').scrollIntoView({behavior:'smooth'})">Kontakt aufnehmen</button>
+      </div>
+      <div class="pricec feat">
+        <div class="p-tag">Empfohlen</div>
+        <div class="p-name">Professional</div>
+        <div class="p-price">€1.500</div>
+        <div class="p-per">/Monat · bis 3 Standorte</div>
+        <div class="p-desc">Für Lager die voll automatisieren wollen – inkl. Forecast.</div>
+        <ul class="p-feats">
+          <li>Alles aus Starter</li>
+          <li>EWM Forecast (24h)</li>
+          <li>Multi-Standort bis 3</li>
+          <li>API Zugang</li>
+          <li>Priority Support</li>
+          <li class="soon">EWM Rückschreiben</li>
+        </ul>
+        <button class="p-btn main" onclick="document.getElementById('waitlist').scrollIntoView({behavior:'smooth'})">Früher Zugang sichern</button>
+      </div>
+      <div class="pricec">
+        <div class="p-name">Enterprise</div>
+        <div class="p-price">Custom</div>
+        <div class="p-per">auf Anfrage</div>
+        <div class="p-desc">Für große Logistikzentren mit komplexen Anforderungen.</div>
+        <ul class="p-feats">
+          <li>Alles aus Professional</li>
+          <li>Unbegrenzt Standorte</li>
+          <li>Custom ABAP Integration</li>
+          <li>On-Premise Option</li>
+          <li>Dedizierter Ansprechpartner</li>
+          <li>SLA Garantie</li>
+        </ul>
+        <button class="p-btn out" onclick="document.getElementById('waitlist').scrollIntoView({behavior:'smooth'})">Gespräch vereinbaren</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- WAITLIST -->
+<div id="waitlist" class="wl-wrap">
+  <div class="wl-inner">
+    <div class="sec-tag">Early Access</div>
+    <div class="sec-title" style="font-size:clamp(28px,4vw,40px)">Sei der Erste.<br><span style="color:var(--accent)">50% Rabatt</span> für Pilotkunden.</div>
+    <p class="sec-sub" style="text-align:center;margin:16px auto 0">Die ersten 10 Kunden erhalten 6 Monate zum halben Preis – und helfen das Produkt zu formen.</p>
+    <form class="wl-form" onsubmit="submitWL(event)">
+      <input type="email" class="wl-input" placeholder="deine@email.de" id="wl-email" required>
+      <button type="submit" class="wl-btn">Sichern →</button>
+    </form>
+    <div class="wl-note" id="wl-note">Keine Werbung. Kein Spam. Nur wenn es losgeht.</div>
+    <div class="wl-social">
+      <div class="wl-avs">
+        <div class="wl-av" style="background:#1a3a2a;color:var(--accent)">K</div>
+        <div class="wl-av" style="background:#1a2a3a;color:var(--accent2)">M</div>
+        <div class="wl-av" style="background:#2a1a3a;color:var(--purple)">S</div>
+      </div>
+      <span style="font-size:13px;color:var(--muted2)">3 Interessenten bereits auf der Liste</span>
+    </div>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<footer style="padding:36px 40px;border-top:1px solid var(--border)">
+  <div style="max-width:1100px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:16px">
+    <div style="font-family:var(--display);font-weight:700;font-size:15px;color:var(--muted)">WestLogiX</div>
+    <div style="font-size:12px;font-family:var(--mono);color:var(--muted)">SAP EWM · KI-Optimierung · Made in Bavaria 🇩🇪</div>
+    <div style="font-size:12px;font-family:var(--mono);color:var(--muted)">© 2026 WestLogiX</div>
+  </div>
+</footer>
+
+<script>
+function submitWL(e){
+  e.preventDefault();
+  const email=document.getElementById('wl-email').value;
+  const note=document.getElementById('wl-note');
+  note.style.color='var(--accent)';
+  note.textContent='✓ '+email+' ist auf der Liste – wir melden uns!';
+  document.getElementById('wl-email').value='';
+}
+</script>
+</body>
+</html>
