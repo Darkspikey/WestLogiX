@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WestLogiX – Smart Pick Engine</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg:#0a0c0f;--surface:#111418;--surface2:#181c22;
+    --border:rgba(255,255,255,0.07);--border2:rgba(255,255,255,0.12);
+    --text:#e8eaed;--muted:#6b7280;
+    --accent:#00d4a0;--accent2:#0090ff;--warn:#f59e0b;--danger:#ef4444;
+    --mono:'IBM Plex Mono',monospace;--sans:'DM Sans',sans-serif;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14px;min-height:100vh}
+  .topbar{display:flex;align-items:center;justify-content:space-between;padding:0 24px;height:52px;border-bottom:1px solid var(--border);background:var(--surface)}
+  .logo{display:flex;align-items:center;gap:10px}
+  .logo-mark{width:28px;height:28px;background:var(--accent);border-radius:6px;display:flex;align-items:center;justify-content:center}
+  .logo-name{font-weight:600;font-size:15px;letter-spacing:-0.3px}
+  .logo-tag{font-size:11px;color:var(--muted);font-family:var(--mono);margin-left:4px}
+  .topbar-right{display:flex;align-items:center;gap:16px}
+  .status-dot{width:7px;height:7px;border-radius:50%;background:var(--accent);animation:pulse 2s infinite}
+  @keyframes pulse{0%,100%{opacity:1}50%{opacity:0.4}}
+  .status-label{font-size:12px;color:var(--muted);font-family:var(--mono)}
+  .mock-badge{font-size:11px;font-family:var(--mono);padding:3px 8px;border:1px solid var(--warn);color:var(--warn);border-radius:4px}
+  .layout{display:grid;grid-template-columns:220px 1fr;height:calc(100vh - 52px)}
+  .sidebar{border-right:1px solid var(--border);background:var(--surface);padding:16px 0}
+  .sidebar-section{padding:8px 16px 4px;font-size:10px;font-family:var(--mono);color:var(--muted);letter-spacing:1px;text-transform:uppercase}
+  .nav-item{display:flex;align-items:center;gap:10px;padding:8px 16px;cursor:pointer;color:var(--muted);transition:all 0.15s;font-size:13px;border-left:2px solid transparent}
+  .nav-item:hover{color:var(--text);background:var(--surface2)}
+  .nav-item.active{color:var(--accent);border-left-color:var(--accent);background:rgba(0,212,160,0.05)}
+  .main{overflow-y:auto;padding:24px;background:var(--bg)}
+  .page-header{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:24px}
+  .page-title{font-size:20px;font-weight:600;letter-spacing:-0.4px}
+  .page-sub{font-size:13px;color:var(--muted);margin-top:2px;font-family:var(--mono)}
+  .refresh-btn{display:flex;align-items:center;gap:6px;padding:7px 14px;border:1px solid var(--border2);border-radius:6px;background:var(--surface);color:var(--text);font-size:12px;font-family:var(--mono);cursor:pointer;transition:all 0.15s}
+  .refresh-btn:hover{border-color:var(--accent);color:var(--accent)}
+  .metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:24px}
+  .metric-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:16px;transition:border-color 0.15s}
+  .metric-card:hover{border-color:var(--border2)}
+  .metric-label{font-size:11px;font-family:var(--mono);color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px}
+  .metric-value{font-size:28px;font-weight:600;letter-spacing:-1px;line-height:1}
+  .metric-value.green{color:var(--accent)}.metric-value.blue{color:var(--accent2)}.metric-value.warn{color:var(--warn)}
+  .metric-delta{font-size:11px;font-family:var(--mono);margin-top:6px}
+  .metric-delta.up{color:var(--accent)}.metric-delta.down{color:var(--danger)}.metric-delta.warn{color:var(--warn)}
+  .grid3{display:grid;grid-template-columns:2fr 1fr;gap:16px;margin-bottom:16px}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px}
+  .panel{background:var(--surface);border:1px solid var(--border);border-radius:10px;overflow:hidden}
+  .panel-header{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;border-bottom:1px solid var(--border)}
+  .panel-title{font-size:13px;font-weight:500}
+  .panel-body{padding:16px}
+  .task-table{width:100%;border-collapse:collapse}
+  .task-table th{text-align:left;font-size:10px;font-family:var(--mono);color:var(--muted);text-transform:uppercase;letter-spacing:0.5px;padding:0 8px 10px;border-bottom:1px solid var(--border)}
+  .task-table td{padding:10px 8px;border-bottom:1px solid var(--border);font-size:13px}
+  .task-table tr:last-child td{border-bottom:none}
+  .task-table tr:hover td{background:var(--surface2)}
+  .zone-pill{display:inline-block;padding:2px 8px;border-radius:4px;font-size:11px;font-family:var(--mono);font-weight:500}
+  .zone-a{background:rgba(0,212,160,0.12);color:var(--accent)}
+  .zone-b{background:rgba(0,144,255,0.12);color:var(--accent2)}
+  .zone-c{background:rgba(245,158,11,0.12);color:var(--warn)}
+  .zone-d{background:rgba(167,139,250,0.12);color:#a78bfa}
+  .s-open{color:var(--warn);font-family:var(--mono);font-size:11px}
+  .s-active{color:var(--accent);font-family:var(--mono);font-size:11px}
+  .s-done{color:var(--muted);font-family:var(--mono);font-size:11px}
+  .emp-list{display:flex;flex-direction:column;gap:10px}
+  .emp-item{display:flex;align-items:center;gap:12px;padding:10px 12px;background:var(--surface2);border-radius:8px;border:1px solid var(--border)}
+  .emp-avatar{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;flex-shrink:0}
+  .emp-name{font-size:13px;font-weight:500}
+  .emp-zone{font-size:11px;color:var(--muted);font-family:var(--mono)}
+  .emp-stat{text-align:right;margin-left:auto}
+  .emp-picks{font-size:14px;font-weight:600;font-family:var(--mono)}
+  .emp-label{font-size:10px;color:var(--muted);font-family:var(--mono)}
+  .badge{font-size:10px;font-family:var(--mono);padding:2px 6px;border-radius:3px;margin-left:4px}
+  .badge-ok{background:rgba(0,212,160,0.1);color:var(--accent)}
+  .badge-pause{background:rgba(245,158,11,0.1);color:var(--warn)}
+  .route-viz{display:flex;align-items:center;gap:0;flex-wrap:wrap;gap:4px}
+  .route-node{display:flex;flex-direction:column;align-items:center;padding:8px 10px;border-radius:8px;min-width:56px;border:1px solid var(--border2);background:var(--surface2)}
+  .route-node.start{border-color:var(--accent);background:rgba(0,212,160,0.08)}
+  .route-node-zone{font-size:18px;font-weight:700;font-family:var(--mono)}
+  .route-node-id{font-size:10px;color:var(--muted);font-family:var(--mono);margin-top:2px}
+  .route-arrow{color:var(--muted);font-size:14px;align-self:center}
+  .route-stats{display:flex;gap:24px;margin-top:16px;padding-top:14px;border-top:1px solid var(--border)}
+  .rs-val{font-size:18px;font-weight:600;font-family:var(--mono)}
+  .rs-lbl{font-size:11px;color:var(--muted);font-family:var(--mono);margin-top:2px}
+  .eta-list{display:flex;flex-direction:column;gap:10px}
+  .eta-item{padding:10px 12px;background:var(--surface2);border-radius:8px;border:1px solid var(--border)}
+  .eta-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
+  .eta-id{font-size:13px;font-weight:500;font-family:var(--mono)}
+  .eta-time{font-size:13px;font-weight:600;font-family:var(--mono);color:var(--accent2)}
+  .eta-bar-bg{height:4px;background:var(--surface);border-radius:2px;overflow:hidden}
+  .eta-bar-fill{height:100%;border-radius:2px;transition:width 1s}
+  .eta-meta{display:flex;justify-content:space-between;margin-top:6px;font-size:11px;color:var(--muted);font-family:var(--mono)}
+  .cap-row{display:flex;align-items:center;gap:16px;margin-top:16px;padding-top:14px;border-top:1px solid var(--border)}
+  .ring-wrap{position:relative;width:80px;height:80px;flex-shrink:0}
+  .ring-svg{transform:rotate(-90deg)}
+  .ring-text{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);text-align:center}
+  .ring-pct{font-size:18px;font-weight:600;font-family:var(--mono);color:var(--accent)}
+  .ring-lbl{font-size:9px;color:var(--muted);font-family:var(--mono)}
+  .cap-val{font-size:22px;font-weight:600;font-family:var(--mono)}
+  .cap-sub{font-size:11px;color:var(--muted);font-family:var(--mono);margin-top:2px}
+  .agent-log{background:#0d1117;border-radius:8px;padding:12px;font-family:var(--mono);font-size:12px;line-height:1.8;max-height:180px;overflow-y:auto}
+  .lt{color:#4b5563}.ll{color:var(--accent2)}.lok{color:var(--accent)}.lwarn{color:var(--warn)}.lr{color:#9ca3af}
+  .cursor{animation:blink 1s infinite;color:var(--accent)}
+  @keyframes blink{0%,100%{opacity:1}50%{opacity:0}}
+  .chart-bars{display:flex;align-items:flex-end;gap:6px;height:80px;padding-top:8px}
+  .chart-bar{flex:1;border-radius:3px 3px 0 0;min-width:8px;transition:height 0.5s;cursor:pointer}
+  .chart-bar:hover{opacity:0.75}
+  .chart-labels{display:flex;gap:6px;margin-top:6px}
+  .chart-label{flex:1;font-size:10px;font-family:var(--mono);color:var(--muted);text-align:center}
+</style>
+</head>
+<body>
+<div class="topbar">
+  <div class="logo">
+    <div class="logo-mark">
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><rect x="2" y="10" width="3" height="4" rx="1" fill="#0a0c0f"/><rect x="6.5" y="6" width="3" height="8" rx="1" fill="#0a0c0f"/><rect x="11" y="2" width="3" height="12" rx="1" fill="#0a0c0f"/></svg>
+    </div>
+    <span class="logo-name">WestLogiX</span>
+    <span class="logo-tag">Smart Pick Engine v0.2</span>
+  </div>
+  <div class="topbar-right">
+    <span class="mock-badge">MOCK DATA</span>
+    <div class="status-dot"></div>
+    <span class="status-label" id="clock">–</span>
+  </div>
+</div>
+<div class="layout">
+  <nav class="sidebar">
+    <div class="sidebar-section">Übersicht</div>
+    <div class="nav-item active">Dashboard</div>
+    <div class="nav-item">Lageraufgaben</div>
+    <div class="sidebar-section">Optimierung</div>
+    <div class="nav-item">Wegrouting</div>
+    <div class="nav-item">Mitarbeiter</div>
+    <div class="nav-item">ETA Planung</div>
+    <div class="sidebar-section">System</div>
+    <div class="nav-item">SAP EWM</div>
+    <div class="nav-item">Einstellungen</div>
+  </nav>
+  <main class="main">
+    <div class="page-header">
+      <div>
+        <div class="page-title">Lager-Übersicht</div>
+        <div class="page-sub">vhcala4hci · Mandant 100 · L001</div>
+      </div>
+      <button class="refresh-btn" onclick="refresh()">↻ Aktualisieren</button>
+    </div>
+    <div class="metrics">
+      <div class="metric-card"><div class="metric-label">Offene Tasks</div><div class="metric-value" id="m1">24</div><div class="metric-delta down">+6 seit 08:00</div></div>
+      <div class="metric-card"><div class="metric-label">Wegezeit-Ersparnis</div><div class="metric-value green">62%</div><div class="metric-delta up">vs. unsortiert</div></div>
+      <div class="metric-card"><div class="metric-label">Picker aktiv</div><div class="metric-value blue">4 / 5</div><div class="metric-delta warn">1 in Pause</div></div>
+      <div class="metric-card"><div class="metric-label">ETA Genauigkeit</div><div class="metric-value">±4 Min</div><div class="metric-delta up">+91% besser</div></div>
+    </div>
+    <div class="grid3">
+      <div class="panel">
+        <div class="panel-header"><span class="panel-title">Aktive Lageraufgaben</span><span style="font-size:11px;font-family:var(--mono);color:var(--accent)">5 angezeigt</span></div>
+        <div class="panel-body" style="padding:0">
+          <table class="task-table">
+            <thead><tr><th>TA-Nr</th><th>Von</th><th>Nach</th><th>Zone</th><th>Menge</th><th>Status</th></tr></thead>
+            <tbody>
+              <tr><td style="font-family:var(--mono)">0001001</td><td style="color:var(--muted)">A-01-01</td><td style="color:var(--muted)">GI-ZONE</td><td><span class="zone-pill zone-a">A</span></td><td style="font-family:var(--mono)">5 ST</td><td><span class="s-active">● AKTIV</span></td></tr>
+              <tr><td style="font-family:var(--mono)">0001002</td><td style="color:var(--muted)">B-03-02</td><td style="color:var(--muted)">GI-ZONE</td><td><span class="zone-pill zone-b">B</span></td><td style="font-family:var(--mono)">12 ST</td><td><span class="s-active">● AKTIV</span></td></tr>
+              <tr><td style="font-family:var(--mono)">0001003</td><td style="color:var(--muted)">C-02-05</td><td style="color:var(--muted)">GI-ZONE</td><td><span class="zone-pill zone-c">C</span></td><td style="font-family:var(--mono)">3 KG</td><td><span class="s-open">○ OFFEN</span></td></tr>
+              <tr><td style="font-family:var(--mono)">0001004</td><td style="color:var(--muted)">GR-ZONE</td><td style="color:var(--muted)">D-01-01</td><td><span class="zone-pill zone-d">D</span></td><td style="font-family:var(--mono)">8 ST</td><td><span class="s-open">○ OFFEN</span></td></tr>
+              <tr><td style="font-family:var(--mono)">0001005</td><td style="color:var(--muted)">A-05-03</td><td style="color:var(--muted)">GI-ZONE</td><td><span class="zone-pill zone-a">A</span></td><td style="font-family:var(--mono)">2 ST</td><td><span class="s-done">✓ FERTIG</span></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div class="panel">
+        <div class="panel-header"><span class="panel-title">Mitarbeiter</span><span style="font-size:11px;font-family:var(--mono);color:var(--accent)">236 Picks/h</span></div>
+        <div class="panel-body">
+          <div class="emp-list">
+            <div class="emp-item"><div class="emp-avatar" style="background:rgba(0,212,160,0.12);color:var(--accent)">LW</div><div><div class="emp-name">Lisa Weber</div><div class="emp-zone">Zone C · bis 19:00</div></div><div class="emp-stat"><div class="emp-picks green">60</div><div class="emp-label">picks/h</div></div><span class="badge badge-ok">verfügbar</span></div>
+            <div class="emp-item"><div class="emp-avatar" style="background:rgba(0,144,255,0.12);color:var(--accent2)">MM</div><div><div class="emp-name">Max Müller</div><div class="emp-zone">Zone A · bis 23:59</div></div><div class="emp-stat"><div class="emp-picks" style="color:var(--accent2)">45</div><div class="emp-label">picks/h</div></div><span class="badge badge-ok">verfügbar</span></div>
+            <div class="emp-item"><div class="emp-avatar" style="background:rgba(245,158,11,0.12);color:var(--warn)">AS</div><div><div class="emp-name">Anna Schmidt</div><div class="emp-zone">Zone B · bis 20:30</div></div><div class="emp-stat"><div class="emp-picks" style="color:var(--warn)">52</div><div class="emp-label">picks/h</div></div><span class="badge badge-pause">Pause 13:15</span></div>
+            <div class="emp-item"><div class="emp-avatar" style="background:rgba(167,139,250,0.12);color:#a78bfa">BK</div><div><div class="emp-name">Ben Koch</div><div class="emp-zone">Zone B · bis 15:00</div></div><div class="emp-stat"><div class="emp-picks" style="color:#a78bfa">41</div><div class="emp-label">picks/h</div></div><span class="badge badge-ok">verfügbar</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="grid2">
+      <div class="panel">
+        <div class="panel-header"><span class="panel-title">Optimierte Pick-Route</span><span style="font-size:11px;font-family:var(--mono);color:var(--accent)">62% Ersparnis</span></div>
+        <div class="panel-body">
+          <div class="route-viz">
+            <div class="route-node start"><div class="route-node-zone" style="color:var(--accent)">A</div><div class="route-node-id">WT009</div></div>
+            <div class="route-arrow">→</div>
+            <div class="route-node"><div class="route-node-zone" style="color:var(--accent)">A</div><div class="route-node-id">WT003</div></div>
+            <div class="route-arrow">→</div>
+            <div class="route-node"><div class="route-node-zone" style="color:var(--accent2)">B</div><div class="route-node-id">WT001</div></div>
+            <div class="route-arrow">→</div>
+            <div class="route-node"><div class="route-node-zone" style="color:var(--accent2)">B</div><div class="route-node-id">WT006</div></div>
+            <div class="route-arrow">→</div>
+            <div class="route-node"><div class="route-node-zone" style="color:var(--warn)">C</div><div class="route-node-id">WT004</div></div>
+            <div class="route-arrow">→</div>
+            <div class="route-node"><div class="route-node-zone" style="color:#a78bfa">D</div><div class="route-node-id">WT007</div></div>
+          </div>
+          <div class="route-stats">
+            <div><div class="rs-val green">5:29</div><div class="rs-lbl">optimiert (min)</div></div>
+            <div><div class="rs-val">14:22</div><div class="rs-lbl">ohne Optimierung</div></div>
+            <div><div class="rs-val green">–8:53</div><div class="rs-lbl">Ersparnis heute</div></div>
+          </div>
+        </div>
+      </div>
+      <div class="panel">
+        <div class="panel-header"><span class="panel-title">ETA Übersicht</span><span style="font-size:11px;font-family:var(--mono);color:var(--muted)">Live</span></div>
+        <div class="panel-body">
+          <div class="eta-list">
+            <div class="eta-item"><div class="eta-top"><span class="eta-id">WT4711</span><span class="eta-time" id="eta1">–</span></div><div class="eta-bar-bg"><div class="eta-bar-fill" style="width:65%;background:var(--accent)"></div></div><div class="eta-meta"><span>24 Picks · Lisa Weber</span><span>±4 Min</span></div></div>
+            <div class="eta-item"><div class="eta-top"><span class="eta-id">WT4712</span><span class="eta-time" id="eta2">–</span></div><div class="eta-bar-bg"><div class="eta-bar-fill" style="width:40%;background:var(--accent2)"></div></div><div class="eta-meta"><span>18 Picks · Max Müller</span><span>±4 Min</span></div></div>
+            <div class="eta-item"><div class="eta-top"><span class="eta-id">WT4713</span><span class="eta-time" id="eta3">–</span></div><div class="eta-bar-bg"><div class="eta-bar-fill" style="width:25%;background:#a78bfa"></div></div><div class="eta-meta"><span>30 Picks · Ben Koch</span><span>±4 Min</span></div></div>
+          </div>
+          <div class="cap-row">
+            <div class="ring-wrap">
+              <svg class="ring-svg" width="80" height="80" viewBox="0 0 80 80"><circle cx="40" cy="40" r="30" fill="none" stroke="var(--surface2)" stroke-width="8"/><circle cx="40" cy="40" r="30" fill="none" stroke="var(--accent)" stroke-width="8" stroke-dasharray="188.5" stroke-dashoffset="56.55" stroke-linecap="round"/></svg>
+              <div class="ring-text"><div class="ring-pct">70%</div><div class="ring-lbl">Auslastung</div></div>
+            </div>
+            <div><div class="cap-val">236 <span style="font-size:13px;color:var(--muted)">Picks/h</span></div><div class="cap-sub">verfügbare Kapazität</div><div class="cap-sub" style="margin-top:4px;color:var(--warn)">+52 Picks/h in 47 Min (Anna)</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="grid2">
+      <div class="panel">
+        <div class="panel-header"><span class="panel-title">AI Agent Log</span><span style="font-size:11px;font-family:var(--mono);color:var(--accent)">● Live</span></div>
+        <div class="panel-body" style="padding:0">
+          <div class="agent-log" id="agent-log">
+            <div><span class="lt">[08:01:12]</span> <span class="ll">optimize_route</span> <span class="lr">→ 10 Aufträge · B,D,A,C,A,B,D,C,A,B</span></div>
+            <div><span class="lt">[08:01:12]</span> <span class="lok">✓</span> <span class="lr">Route optimiert – 62% Einsparung</span></div>
+            <div><span class="lt">[08:15:44]</span> <span class="ll">schedule_employees</span> <span class="lr">→ all · 4/5 verfügbar</span></div>
+            <div><span class="lt">[08:32:01]</span> <span class="ll">calculate_eta</span> <span class="lr">→ WT4711:24, WT4712:18</span></div>
+            <div><span class="lt">[08:32:01]</span> <span class="lok">✓</span> <span class="lr">ETA berechnet · ±4 Min Abweichung</span></div>
+            <div><span class="lt">[09:00:00]</span> <span class="lwarn">⚠</span> <span class="lr">Anna Schmidt → Pause bis 13:15</span></div>
+            <div><span class="lt">[09:00:01]</span> <span class="lok">✓</span> <span class="lr">Zone B → Ben Koch umgeplant</span></div>
+            <div id="log-last"><span class="lt" id="log-ts">[–]</span> <span class="cursor">█</span></div>
+          </div>
+        </div>
+      </div>
+      <div class="panel">
+        <div class="panel-header"><span class="panel-title">Picks pro Stunde (heute)</span><span style="font-size:11px;font-family:var(--mono);color:var(--muted)">Ø 47/h</span></div>
+        <div class="panel-body">
+          <div class="chart-bars" id="chart-bars">
+            <div class="chart-bar" style="height:35%;background:var(--surface2)"></div>
+            <div class="chart-bar" style="height:52%;background:var(--surface2)"></div>
+            <div class="chart-bar" style="height:68%;background:var(--surface2)"></div>
+            <div class="chart-bar" style="height:84%;background:var(--accent);opacity:0.7"></div>
+            <div class="chart-bar" style="height:91%;background:var(--accent);opacity:0.85"></div>
+            <div class="chart-bar" style="height:78%;background:var(--accent)"></div>
+            <div class="chart-bar" style="height:55%;background:var(--accent2)"></div>
+            <div class="chart-bar" style="height:40%;background:var(--accent2);opacity:0.5"></div>
+          </div>
+          <div class="chart-labels"><div class="chart-label">06</div><div class="chart-label">07</div><div class="chart-label">08</div><div class="chart-label">09</div><div class="chart-label">10</div><div class="chart-label">11</div><div class="chart-label">12</div><div class="chart-label">13</div></div>
+          <div style="margin-top:20px;padding-top:14px;border-top:1px solid var(--border);display:grid;grid-template-columns:1fr 1fr;gap:12px">
+            <div><div style="font-size:20px;font-weight:600;font-family:var(--mono);color:var(--accent)">847</div><div style="font-size:11px;color:var(--muted);font-family:var(--mono)">Picks heute gesamt</div></div>
+            <div><div style="font-size:20px;font-weight:600;font-family:var(--mono);color:var(--accent2)">18</div><div style="font-size:11px;color:var(--muted);font-family:var(--mono)">Aufträge abgeschlossen</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+<script>
+function addMin(m){const d=new Date();d.setMinutes(d.getMinutes()+m);return d.toLocaleTimeString('de-DE',{hour:'2-digit',minute:'2-digit'})}
+function now(){return new Date().toLocaleTimeString('de-DE',{hour:'2-digit',minute:'2-digit',second:'2-digit'})}
+function updateETAs(){document.getElementById('eta1').textContent=addMin(24);document.getElementById('eta2').textContent=addMin(18);document.getElementById('eta3').textContent=addMin(44)}
+function updateClock(){document.getElementById('clock').textContent=now();document.getElementById('log-ts').textContent='['+now()+']'}
+function refresh(){updateETAs();document.querySelectorAll('.chart-bar').forEach(b=>{b.style.height=(25+Math.floor(Math.random()*65))+'%'})}
+const logLines=[
+  ['ll','optimize_route','→ Route neu berechnet · 62%'],
+  ['ll','calculate_eta','→ WT4714:16 · +14 Min'],
+  ['lok','✓','ETA gespeichert'],
+  ['ll','ewm_get_tasks','→ 24 offene Tasks'],
+  ['lok','✓','Sync abgeschlossen'],
+  ['lwarn','⚠','Kapazität Zone B sinkt'],
+];
+let li=0;
+function appendLog(){
+  const[cls,sym,msg]=logLines[li++%logLines.length];
+  const log=document.getElementById('agent-log');
+  const last=document.getElementById('log-last');
+  const div=document.createElement('div');
+  div.innerHTML=`<span class="lt">[${now()}]</span> <span class="${cls}">${sym}</span> <span class="lr">${msg}</span>`;
+  log.insertBefore(div,last);
+  log.scrollTop=log.scrollHeight;
+  if(log.children.length>20)log.removeChild(log.children[0]);
+}
+updateETAs();
+setInterval(updateClock,1000);
+setInterval(appendLog,4000);
+setInterval(updateETAs,60000);
+</script>
+</body>
+</html>

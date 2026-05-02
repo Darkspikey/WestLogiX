@@ -57,6 +57,18 @@ def optimize_route(input_str: str) -> str:
         zones = [z.strip() for z in input_str.split(",")]
         tasks = [{"id": f"WT{i+1:03d}", "zone": z} for i, z in enumerate(zones)]
 
+    # Normalisiere: falls tasks Strings sind (z.B. ["Zone1","Zone2"]) → in Dicts umwandeln
+    normalized = []
+    for i, t in enumerate(tasks):
+        if isinstance(t, str):
+            # String direkt als Zone interpretieren, bekannte Zonen-Präfixe erkennen
+            zone = re.sub(r"[^A-Za-z]", "", t) or "A"  # alles außer Buchstaben raus
+            zone = zone[0].upper()                       # nur erster Buchstabe als Zone
+            normalized.append({"id": f"WT{i+1:03d}", "zone": zone})
+        else:
+            normalized.append(t)
+    tasks = normalized
+
     if EWM_MOCK:
         enriched = []
         for t in tasks:
@@ -108,6 +120,9 @@ MOCK_EMPLOYEES = [
 
 
 def schedule_employees(input_str: str) -> str:
+    # None-safe: Agent schickt manchmal None statt leerem String
+    if not input_str:
+        input_str = "all"
     now = datetime.now().strftime("%H:%M")
     zone_filter = input_str.strip().upper() if input_str.strip().upper() not in ("ALL", "") else None
 
@@ -148,10 +163,17 @@ def _parse_eta_input(raw: str):
     """
     Parst alle Formate die LLMs liefern können:
       "WT4711:30"               -> [("WT4711", 30)]
-      "WT4711:20, WT4712:10"    -> [("WT4711", 20), ("WT4712", 10)]   ← dein Multi-Auftrag
+      "WT4711:20, WT4712:10"    -> [("WT4711", 20), ("WT4712", 10)]
       "WT4711 mit 30 Picks"     -> [("WT4711", 30)]
       "30 Picks" / "30"         -> [("Auftrag", 30)]
+    Gibt leere Liste zurück wenn gar keine sinnvolle Zahl gefunden wird.
     """
+    # Sofort ablehnen wenn Input offensichtlich kein ETA-Input ist
+    # (z.B. "ewm_get_tasks", "none", Tool-Namen etc.)
+    non_numeric_keywords = {"ewm_get_tasks", "optimize_route", "schedule_employees",
+                             "none", "null", "alle", "all", "aufträge", "aktuell"}
+    if raw.strip().lower() in non_numeric_keywords:
+        raise ValueError(f"Kein ETA-Input: {raw}")
     results = []
     parts = [p.strip() for p in raw.split(",")]
 
