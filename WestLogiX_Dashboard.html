@@ -110,6 +110,92 @@
   .chart-bar:hover{opacity:0.75}
   .chart-labels{display:flex;gap:6px;margin-top:6px}
   .chart-label{flex:1;font-size:10px;font-family:var(--mono);color:var(--muted);text-align:center}
+
+/* ─── AGENT CHAT ─────────────────────────────────────────────── */
+.chat-bubble {
+  position: fixed; bottom: 24px; right: 24px; z-index: 999;
+}
+.chat-toggle {
+  width: 52px; height: 52px; border-radius: 50%;
+  background: var(--accent); border: none; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  box-shadow: 0 4px 24px rgba(0,229,160,0.35);
+  transition: all 0.2s; font-size: 22px;
+}
+.chat-toggle:hover { transform: scale(1.08); }
+.chat-window {
+  position: fixed; bottom: 88px; right: 24px; z-index: 998;
+  width: 360px; background: #0d1117;
+  border: 1px solid var(--border2); border-radius: 14px;
+  overflow: hidden; display: none; flex-direction: column;
+  box-shadow: 0 8px 40px rgba(0,0,0,0.6);
+}
+.chat-window.open { display: flex; }
+.chat-header {
+  padding: 14px 16px; background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: space-between;
+}
+.chat-header-left { display: flex; align-items: center; gap: 10px; }
+.chat-agent-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--accent); animation: pulse 2s infinite; }
+.chat-title { font-size: 13px; font-weight: 500; font-family: var(--sans); }
+.chat-subtitle { font-size: 11px; color: var(--muted); font-family: var(--mono); }
+.chat-close { background: none; border: none; color: var(--muted); cursor: pointer; font-size: 18px; padding: 0 4px; }
+.chat-close:hover { color: var(--text); }
+.chat-messages {
+  flex: 1; overflow-y: auto; padding: 16px;
+  display: flex; flex-direction: column; gap: 12px;
+  max-height: 340px; min-height: 200px;
+}
+.chat-msg { display: flex; flex-direction: column; gap: 4px; }
+.chat-msg.user { align-items: flex-end; }
+.chat-msg.agent { align-items: flex-start; }
+.chat-bubble-text {
+  padding: 10px 14px; border-radius: 10px;
+  font-size: 13px; line-height: 1.55; max-width: 90%;
+  white-space: pre-wrap; word-break: break-word;
+}
+.chat-msg.user .chat-bubble-text {
+  background: var(--accent); color: #060709; border-bottom-right-radius: 3px;
+}
+.chat-msg.agent .chat-bubble-text {
+  background: var(--surface2); color: var(--text);
+  border: 1px solid var(--border); border-bottom-left-radius: 3px;
+}
+.chat-msg.agent.thinking .chat-bubble-text {
+  color: var(--muted); font-family: var(--mono); font-size: 12px;
+}
+.chat-footer {
+  padding: 12px; border-top: 1px solid var(--border);
+  display: flex; gap: 8px; background: var(--surface);
+}
+.chat-input {
+  flex: 1; background: var(--s2, #131920); border: 1px solid var(--border2);
+  border-radius: 7px; padding: 9px 12px; color: var(--text);
+  font-size: 13px; font-family: var(--sans); outline: none;
+  transition: border-color 0.15s;
+}
+.chat-input:focus { border-color: var(--accent); }
+.chat-input::placeholder { color: var(--muted); }
+.chat-send {
+  padding: 9px 14px; background: var(--accent); color: #060709;
+  border: none; border-radius: 7px; font-size: 13px; font-weight: 600;
+  cursor: pointer; font-family: var(--sans); transition: opacity 0.15s;
+  white-space: nowrap;
+}
+.chat-send:hover { opacity: 0.88; }
+.chat-send:disabled { opacity: 0.4; cursor: not-allowed; }
+.chat-suggestions {
+  padding: 0 12px 10px; display: flex; gap: 6px; flex-wrap: wrap;
+  background: var(--surface);
+}
+.suggestion {
+  font-size: 11px; font-family: var(--mono); padding: 4px 10px;
+  border: 1px solid var(--border2); border-radius: 20px; color: var(--muted2);
+  cursor: pointer; transition: all 0.15s; background: none; white-space: nowrap;
+}
+.suggestion:hover { border-color: var(--accent); color: var(--accent); }
+
 </style>
 </head>
 <body>
@@ -293,5 +379,163 @@ setInterval(updateClock,1000);
 setInterval(appendLog,4000);
 setInterval(updateETAs,60000);
 </script>
+
+<!-- ─── AGENT CHAT WIDGET ─────────────────────────────────────── -->
+<div class="chat-bubble">
+  <button class="chat-toggle" onclick="toggleChat()" title="WestLogiX Agent">🤖</button>
+</div>
+
+<div class="chat-window" id="chat-window">
+  <div class="chat-header">
+    <div class="chat-header-left">
+      <div class="chat-agent-dot"></div>
+      <div>
+        <div class="chat-title">WestLogiX Agent</div>
+        <div class="chat-subtitle">Smart Pick Engine</div>
+      </div>
+    </div>
+    <button class="chat-close" onclick="toggleChat()">×</button>
+  </div>
+
+  <div class="chat-messages" id="chat-messages">
+    <div class="chat-msg agent">
+      <div class="chat-bubble-text">👋 Hallo! Ich bin der WestLogiX Agent.
+
+Frag mich nach Routen, Mitarbeitern oder ETA – ich hole die Daten direkt aus dem System.</div>
+    </div>
+  </div>
+
+  <div class="chat-suggestions" id="chat-suggestions">
+    <button class="suggestion" onclick="sendSuggestion(this)">Route optimieren</button>
+    <button class="suggestion" onclick="sendSuggestion(this)">Wer ist verfügbar?</button>
+    <button class="suggestion" onclick="sendSuggestion(this)">ETA WT4711:24</button>
+    <button class="suggestion" onclick="sendSuggestion(this)">Zeig Lageraufgaben</button>
+  </div>
+
+  <div class="chat-footer">
+    <input
+      type="text"
+      class="chat-input"
+      id="chat-input"
+      placeholder="Frag den Agent..."
+      onkeydown="if(event.key==='Enter')sendMessage()"
+    >
+    <button class="chat-send" id="chat-send" onclick="sendMessage()">Senden</button>
+  </div>
+</div>
+
+<script>
+// ─── CHAT LOGIC ──────────────────────────────────────────────────
+const API_BASE = 'http://localhost:8000/api';
+
+function toggleChat() {
+  const win = document.getElementById('chat-window');
+  win.classList.toggle('open');
+  if (win.classList.contains('open')) {
+    document.getElementById('chat-input').focus();
+  }
+}
+
+function addMessage(role, text) {
+  const container = document.getElementById('chat-messages');
+  const div = document.createElement('div');
+  div.className = `chat-msg ${role}`;
+  const bubble = document.createElement('div');
+  bubble.className = 'chat-bubble-text';
+  bubble.textContent = text;
+  div.appendChild(bubble);
+  container.appendChild(div);
+  container.scrollTop = container.scrollHeight;
+  return div;
+}
+
+function setThinking(thinking) {
+  document.getElementById('chat-send').disabled = thinking;
+  document.getElementById('chat-input').disabled = thinking;
+}
+
+async function sendMessage() {
+  const input = document.getElementById('chat-input');
+  const msg = input.value.trim();
+  if (!msg) return;
+
+  // User message
+  addMessage('user', msg);
+  input.value = '';
+
+  // Suggestions ausblenden nach erster Nachricht
+  document.getElementById('chat-suggestions').style.display = 'none';
+
+  // Thinking indicator
+  setThinking(true);
+  const thinkingDiv = addMessage('agent thinking', '🧠 Denke nach...');
+
+  try {
+    const res = await fetch(`${API_BASE}/agent`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ message: msg })
+    });
+
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const data = await res.json();
+
+    // Thinking entfernen, Antwort zeigen
+    thinkingDiv.remove();
+    addMessage('agent', data.response || '❌ Keine Antwort erhalten.');
+
+  } catch(e) {
+    thinkingDiv.remove();
+    addMessage('agent', '❌ API nicht erreichbar. Läuft python api.py?');
+  } finally {
+    setThinking(false);
+    document.getElementById('chat-input').focus();
+  }
+}
+
+function sendSuggestion(btn) {
+  document.getElementById('chat-input').value = btn.textContent;
+  sendMessage();
+}
+</script>
+
 </body>
 </html>
+<!-- API Integration – füge das vor </body> ein -->
+<script>
+const API = 'http://localhost:8000/api';
+
+async function fetchMetrics() {
+  try {
+    const res = await fetch(`${API}/metrics`);
+    if (!res.ok) return;
+    const d = await res.json();
+
+    // Tasks
+    document.getElementById('m1').textContent = d.tasks.open;
+
+    // Employees
+    const emp = d.employees;
+    document.querySelector('.metric-value.blue').textContent =
+      `${emp.available} / ${emp.total}`;
+
+    // Kapazität
+    document.getElementById('cap-total') &&
+      (document.getElementById('cap-total').textContent = `${emp.capacity_per_hour} Picks/h`);
+
+    // Savings
+    if (d.route?.einsparung) {
+      document.querySelector('.metric-value.green').textContent =
+        d.route.einsparung.replace('%','') + '%';
+    }
+
+    console.log('✅ API Daten geladen:', d.timestamp);
+  } catch(e) {
+    console.log('API nicht erreichbar – Mock-Daten aktiv');
+  }
+}
+
+// Beim Laden + alle 30 Sekunden
+fetchMetrics();
+setInterval(fetchMetrics, 30000);
+</script>
