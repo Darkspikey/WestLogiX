@@ -1371,3 +1371,9 @@
 2026-04-28 16:23:36,169 [INFO] Thought: Der User will ETA-Zeiten für aktuelle Aufträge berechnen, aber ich kann keine Picks-Anzahl erkennen. Bitte überprüfe die eingegebenen Daten und versuche es erneut. | Tool: none | Input: 
 2026-04-28 16:23:36,755 [INFO] HTTP Request: POST http://127.0.0.1:11434/api/chat "HTTP/1.1 200 OK"
 2026-04-28 16:23:36,755 [INFO] Reflection: {'correct': False, 'fix': 'Ich habe leider keine ETA-Zeit berechnet, da Sie keine aktuellen Auftragsnummern eingegeben haben. Bitte überprüfe deine eingegebenen Daten und versuche es erneut.'}
+2026-05-02 15:34:45,536 [INFO] User: Wer ist verfügbar?
+2026-05-02 15:34:45,536 [INFO] --- Step 1/8 ---
+2026-05-02 15:34:45,943 [ERROR] LLM-Fehler: Failed to connect to Ollama. Please check that Ollama is downloaded, running and accessible. https://ollama.com/download
+2026-05-02 15:35:30,331 [INFO] User: hallo
+2026-05-02 15:35:30,332 [INFO] --- Step 1/8 ---
+2026-05-02 15:35:30,332 [ERROR] LLM-Fehler: Failed to connect to Ollama. Please check that Ollama is downloaded, running and accessible. https://ollama.com/download
