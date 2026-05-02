@@ -4,7 +4,7 @@ import re
 import logging
 from config import (
     MODEL_PROVIDER, MODEL_NAME, MAX_STEPS, TEMPERATURE,
-    LOG_FILE, ANTHROPIC_API_KEY, OPENAI_API_KEY
+    LOG_FILE, ANTHROPIC_API_KEY, OPENAI_API_KEY, OLLAMA_HOST
 )
 from tools import TOOLS, is_valid_calculation
 from schemy import get_schema
@@ -27,7 +27,9 @@ log = logging.getLogger("westlogix")
 def llm_call(messages: list) -> str:
     if MODEL_PROVIDER == "ollama":
         import ollama
-        response = ollama.chat(
+        # Windows Fix: explizit Host setzen
+        client = ollama.Client(host=OLLAMA_HOST)
+        response = client.chat(
             model=MODEL_NAME,
             messages=messages,
             options={"temperature": TEMPERATURE}

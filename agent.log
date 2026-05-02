@@ -1377,3 +1377,12 @@
 2026-05-02 15:35:30,331 [INFO] User: hallo
 2026-05-02 15:35:30,332 [INFO] --- Step 1/8 ---
 2026-05-02 15:35:30,332 [ERROR] LLM-Fehler: Failed to connect to Ollama. Please check that Ollama is downloaded, running and accessible. https://ollama.com/download
+2026-05-02 15:38:07,603 [INFO] User: Optimiere die Pick-Route für Zonen B, D, A, C, A, B, D, C, A, B
+2026-05-02 15:38:07,603 [INFO] --- Step 1/8 ---
+2026-05-02 15:38:07,886 [ERROR] LLM-Fehler: Failed to connect to Ollama. Please check that Ollama is downloaded, running and accessible. https://ollama.com/download
+2026-05-02 15:38:12,323 [INFO] User: Zeig mir alle Mitarbeiter – wer ist verfügbar und wie hoch ist unsere aktuelle Pick-Kapazität?
+2026-05-02 15:38:12,323 [INFO] --- Step 1/8 ---
+2026-05-02 15:38:12,324 [ERROR] LLM-Fehler: Failed to connect to Ollama. Please check that Ollama is downloaded, running and accessible. https://ollama.com/download
+2026-05-02 15:44:30,795 [INFO] User: Wer ist verfügbar?
+2026-05-02 15:44:30,796 [INFO] --- Step 1/8 ---
+2026-05-02 15:44:30,982 [ERROR] LLM-Fehler: Failed to connect to Ollama. Please check that Ollama is downloaded, running and accessible. https://ollama.com/download
