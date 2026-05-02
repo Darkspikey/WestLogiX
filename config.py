@@ -3,7 +3,7 @@ import os
 
 # ─── LLM Modell ────────────────────────────────────────────────────────────────
 MODEL_PROVIDER = os.getenv("MODEL_PROVIDER", "ollama")
-MODEL_NAME     = os.getenv("MODEL_NAME",     "Mistral")
+MODEL_NAME     = os.getenv("MODEL_NAME",     "qwen3.5:9b")
 
 OPENAI_API_KEY    = os.getenv("OPENAI_API_KEY",    "")
 ANTHROPIC_API_KEY = os.getenv("ANTHROPIC_API_KEY", "")
