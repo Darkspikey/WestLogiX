@@ -26,15 +26,23 @@ log = logging.getLogger("westlogix")
 
 def llm_call(messages: list) -> str:
     if MODEL_PROVIDER == "ollama":
-        import ollama
-        # Windows Fix: explizit Host setzen
-        client = ollama.Client(host=OLLAMA_HOST)
-        response = client.chat(
-            model=MODEL_NAME,
-            messages=messages,
-            options={"temperature": TEMPERATURE}
+        import urllib.request, json as _json
+        # Direkter HTTP Call - kein ollama Package nötig
+        host = "http://127.0.0.1:11434"  # hardcoded für maximale Stabilität
+        payload = _json.dumps({
+            "model": MODEL_NAME,
+            "messages": messages,
+            "stream": False,
+            "options": {"temperature": TEMPERATURE}
+        }).encode("utf-8")
+        req = urllib.request.Request(
+            f"{host}/api/chat",
+            data=payload,
+            headers={"Content-Type": "application/json"},
+            method="POST"
         )
-        return response["message"]["content"]
+        with urllib.request.urlopen(req, timeout=120) as resp:
+            return _json.loads(resp.read())["message"]["content"]
 
     elif MODEL_PROVIDER == "openai":
         from openai import OpenAI

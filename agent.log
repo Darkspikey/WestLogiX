@@ -1386,3 +1386,24 @@
 2026-05-02 15:44:30,795 [INFO] User: Wer ist verfügbar?
 2026-05-02 15:44:30,796 [INFO] --- Step 1/8 ---
 2026-05-02 15:44:30,982 [ERROR] LLM-Fehler: Failed to connect to Ollama. Please check that Ollama is downloaded, running and accessible. https://ollama.com/download
+2026-05-02 15:48:33,296 [INFO] User: Wer ist verfügbar?
+2026-05-02 15:48:33,296 [INFO] --- Step 1/8 ---
+2026-05-02 15:48:33,623 [ERROR] LLM-Fehler: Failed to connect to Ollama. Please check that Ollama is downloaded, running and accessible. https://ollama.com/download
+2026-05-02 15:48:56,346 [INFO] User: Hallo
+2026-05-02 15:48:56,346 [INFO] --- Step 1/8 ---
+2026-05-02 15:48:56,489 [ERROR] LLM-Fehler: Failed to connect to Ollama. Please check that Ollama is downloaded, running and accessible. https://ollama.com/download
+2026-05-02 21:18:28,015 [INFO] User: Optimiere die Pick-Route für Zonen B, D, A, C, A, B, D, C, A, B
+2026-05-02 21:18:28,016 [INFO] --- Step 1/8 ---
+2026-05-02 21:18:29,110 [ERROR] LLM-Fehler: Failed to connect to Ollama. Please check that Ollama is downloaded, running and accessible. https://ollama.com/download
+2026-05-02 21:21:26,844 [INFO] User: Wer ist verfügbar?
+2026-05-02 21:21:26,844 [INFO] --- Step 1/8 ---
+2026-05-02 21:21:27,172 [ERROR] LLM-Fehler: Failed to connect to Ollama. Please check that Ollama is downloaded, running and accessible. https://ollama.com/download
+2026-05-02 21:23:35,632 [INFO] User: Wer ist verfügbar?
+2026-05-02 21:23:35,633 [INFO] --- Step 1/8 ---
+2026-05-02 21:23:35,633 [ERROR] LLM-Fehler: unknown url type: '0.0.0.0/api/chat'
+2026-05-02 21:25:23,677 [INFO] User: Wer ist verfügbar?
+2026-05-02 21:25:23,678 [INFO] --- Step 1/8 ---
+2026-05-02 21:25:23,678 [ERROR] LLM-Fehler: unknown url type: '0.0.0.0/api/chat'
+2026-05-02 21:25:28,982 [INFO] User: hi
+2026-05-02 21:25:28,982 [INFO] --- Step 1/8 ---
+2026-05-02 21:25:28,983 [ERROR] LLM-Fehler: unknown url type: '0.0.0.0/api/chat'
