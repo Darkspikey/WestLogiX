@@ -1407,3 +1407,28 @@
 2026-05-02 21:25:28,982 [INFO] User: hi
 2026-05-02 21:25:28,982 [INFO] --- Step 1/8 ---
 2026-05-02 21:25:28,983 [ERROR] LLM-Fehler: unknown url type: '0.0.0.0/api/chat'
+2026-05-02 21:26:20,191 [INFO] User: Wer ist verfügbar?
+2026-05-02 21:26:20,191 [INFO] --- Step 1/8 ---
+2026-05-02 21:26:58,880 [INFO] Raw: {
+  "thought": "User fragt nach Verfügbarkeit. Ich muss die Mitarbeiter-Verfügbarkeit prüfen. Da keine spezifische Zone genannt wurde, verwende ich 'all' für alle.",
+  "tool": "schedule_employees",
+  "input": "all",
+  "final": ""
+}
+2026-05-02 21:26:58,880 [INFO] Thought: User fragt nach Verfügbarkeit. Ich muss die Mitarbeiter-Verfügbarkeit prüfen. Da keine spezifische Zone genannt wurde, verwende ich 'all' für alle. | Tool: schedule_employees | Input: all
+2026-05-02 21:26:58,881 [INFO] Tool result: 🕐 Aktuell: 21:26
+
+✅ Verfügbar (1):
+  Max Müller | Zone A | 45 Picks/h | Schichtende 23:59
+
+🔴 Schicht beendet: Anna Schmidt, Tom Fischer, Lisa Weber, Ben Koch
+
+⚡ Aktuelle Gesamtkapazität: 45 Picks/Stun
+2026-05-02 21:26:58,881 [INFO] --- Step 2/8 ---
+2026-05-02 21:27:28,999 [INFO] Raw: {
+  "thought": "User fragt nach Verfügbarkeit. Tool-Ergebnis liegt vor. Jetzt direkt antworten mit tool=none.",
+  "tool": "none",
+  "input": "",
+  "final": "🕐 Aktuell: 21:26\n\n✅ Verfügbar (1):\n  Max Müller | Zone A | 45 Picks/h | Schichtende 23:59\n\n🔴 Schicht beendet:\n  Anna Schmidt, Tom Fischer
+2026-05-02 21:27:28,999 [INFO] Thought: User fragt nach Verfügbarkeit. Tool-Ergebnis liegt vor. Jetzt direkt antworten mit tool=none. | Tool: none | Input: 
+2026-05-02 21:28:42,138 [INFO] Reflection: {'correct': True}
