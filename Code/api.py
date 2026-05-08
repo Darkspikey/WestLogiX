@@ -18,7 +18,7 @@ from tools import (
     ewm_get_tasks,
     _get_mock_employees,
 )
-from Code.agent import run_agent
+from agent import run_agent
 
 # ─── App ───────────────────────────────────────────────────────────────────────
 app = FastAPI(

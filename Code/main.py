@@ -1,6 +1,6 @@
 # main.py
 import sys
-from Code.agent import run_agent
+from agent import run_agent
 from config import MODEL_PROVIDER, MODEL_NAME
 
 BANNER = """

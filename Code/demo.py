@@ -2,7 +2,7 @@
 # Zeigt die 3 Kernfunktionen mit realistischen Inputs
 import sys
 import time
-from Code.agent import run_agent
+from agent import run_agent
 
 BANNER = """
 ╔══════════════════════════════════════════════════════════════╗
