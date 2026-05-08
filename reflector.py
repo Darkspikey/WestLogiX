@@ -30,7 +30,7 @@ def reflect(user_input: str, tool_result, final_answer: str) -> dict:
 
     # Bei leerem Final einfach durchlassen
     if not final_answer or final_answer.strip() == "":
-        return {"correct": False, "fix": str(tool_result) if tool_result else "Keine Antwort."}
+        return {"correct": False, "fix": "Die Antwort ist unvollständig. Bitte gib eine vollständige Antwort."}
 
     messages = [
         {"role": "system", "content": REFLECTION_PROMPT},
@@ -54,6 +54,5 @@ def reflect(user_input: str, tool_result, final_answer: str) -> dict:
 
     except Exception as ex:
         log.warning(f"Reflection fehlgeschlagen: {ex}")
-
-    # Fallback: Antwort als korrekt markieren
-    return {"correct": True}
+        # Fallback: Antwort als korrekt markieren und originale Antwort zurückgeben
+        return {"correct": True}

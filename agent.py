@@ -179,10 +179,10 @@ def run_agent(user_input: str) -> str:
 
         # ── FERTIG ──
         if tool == "none":
-            if not final:
+            if not final or final.lower() in ("none", "null"):
                 messages.append({
                     "role": "user",
-                    "content": "Du hast tool=none gesetzt aber 'final' ist leer. Schreibe jetzt deine Antwort in 'final'."
+                    "content": "Du hast tool=none gesetzt aber 'final' ist leer oder ungültig ('none'/'null'). Schreibe jetzt eine vollständige Antwort in 'final'."
                 })
                 continue
             reflection = reflect(user_input, None, final)
