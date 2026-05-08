@@ -109,14 +109,52 @@ def optimize_route(input_str: str) -> str:
 
 # ─── EWM: MITARBEITER-SCHEDULING ───────────────────────────────────────────────
 
-# HINWEIS: shift_end niemals "24:00" – Python "%H:%M" kennt nur bis "23:59"
-MOCK_EMPLOYEES = [
-    {"id": "EMP001", "name": "Max Müller",   "zone": "A", "shift_end": "23:59", "break_until": None,    "picks_per_hour": 45},
-    {"id": "EMP002", "name": "Anna Schmidt", "zone": "B", "shift_end": "20:30", "break_until": "13:15", "picks_per_hour": 52},
-    {"id": "EMP003", "name": "Tom Fischer",  "zone": "A", "shift_end": "18:00", "break_until": None,    "picks_per_hour": 38},
-    {"id": "EMP004", "name": "Lisa Weber",   "zone": "C", "shift_end": "19:00", "break_until": None,    "picks_per_hour": 60},
-    {"id": "EMP005", "name": "Ben Koch",     "zone": "B", "shift_end": "15:00", "break_until": None,    "picks_per_hour": 41},
+def _compute_break_until(emp_index: int, now: datetime):
+    """
+    Bestimmt die Pause-Zeit eines Mitarbeiters deterministisch.
+    Jede Stunde rotiert die Pause durch alle MA: Stunde % Anzahl_MA = Index des pausierenden MA.
+    Die Pause dauert die ersten 15 Minuten der Stunde.
+    Gibt None zurück wenn dieser MA gerade keine Pause hat.
+    """
+    num_employees = 5
+    if emp_index != now.hour % num_employees:
+        return None  # Nicht dieser MA' Pause-Stunde
+    if now.minute >= 15:
+        return None  # Pause dieser Stunde bereits vorbei
+    return (now + timedelta(minutes=15 - now.minute)).strftime("%H:%M")
+
+
+# Schichtmuster: (Label, Schichtende) – rotiert täglich pro Mitarbeiter
+_SHIFT_PATTERNS = [
+    ("Frühschicht",  "08:00"),
+    ("Frühschicht",  "12:00"),
+    ("Tagschicht",   "16:00"),
+    ("Spätschicht",  "20:00"),
+    ("Spätschicht",  "22:00"),
+    ("Nachtschicht", "23:59"),
 ]
+
+
+def _pick_shift_end(emp_index: int, now: datetime) -> str:
+    """Wählt deterministisch ein Schichtende pro Mitarbeiter und Tag.
+    Jeder MA hat täglich eine andere Schicht – rotiert über alle Muster."""
+    idx = (now.timetuple().tm_yday + emp_index) % len(_SHIFT_PATTERNS)
+    return _SHIFT_PATTERNS[idx][1]
+
+
+def _get_mock_employees():
+    """Generiert Mock-Mitarbeiter mit realistisch variierenden Schichtzeiten."""
+    now = datetime.now()
+    return [
+        {"id": "EMP001", "name": "Max Müller",   "zone": "A", "shift_end": _pick_shift_end(0, now), "break_until": _compute_break_until(0, now), "picks_per_hour": 45},
+        {"id": "EMP002", "name": "Anna Schmidt", "zone": "B", "shift_end": _pick_shift_end(1, now), "break_until": _compute_break_until(1, now), "picks_per_hour": 52},
+        {"id": "EMP003", "name": "Tom Fischer",  "zone": "A", "shift_end": _pick_shift_end(2, now), "break_until": _compute_break_until(2, now), "picks_per_hour": 38},
+        {"id": "EMP004", "name": "Lisa Weber",   "zone": "C", "shift_end": _pick_shift_end(3, now), "break_until": _compute_break_until(3, now), "picks_per_hour": 60},
+        {"id": "EMP005", "name": "Ben Koch",     "zone": "B", "shift_end": _pick_shift_end(4, now), "break_until": _compute_break_until(4, now), "picks_per_hour": 41},
+    ]
+
+# Modul-Level-Alias für Importe in api.py (wird bei jedem API-Aufruf neu erzeugt)
+MOCK_EMPLOYEES = _get_mock_employees()
 
 
 def schedule_employees(input_str: str) -> str:
@@ -210,17 +248,34 @@ def calculate_eta(input_str: str) -> str:
     total_picks = sum(p for _, p in parsed)
     order_ids   = [o for o, _ in parsed]
 
-    now = datetime.now().strftime("%H:%M")
-    available = [e for e in MOCK_EMPLOYEES
-                 if not (e["break_until"] and e["break_until"] > now)
-                 and e["shift_end"] > now]
+    now = datetime.now()
+    now_str = now.strftime("%H:%M")
+    employees = _get_mock_employees()
+
+    available = [e for e in employees
+                 if not (e["break_until"] and e["break_until"] > now_str)
+                 and e["shift_end"] > now_str]
+    on_break  = [e for e in employees
+                 if e["break_until"] and e["break_until"] > now_str
+                 and e["shift_end"] > now_str]
+
+    # Wenn niemand verfügbar, aber jemand in Pause: auf Pausenende warten
+    if not available and on_break:
+        soonest = min(on_break, key=lambda e: e["break_until"])
+        wait_until = soonest["break_until"]
+        wait_min = (datetime.strptime(wait_until, "%H:%M") - now).seconds // 60
+        return (
+            f"⏸ Kein Picker sofort verfügbar.\n"
+            f"👷 {soonest['name']} ist ab {wait_until} Uhr wieder da ({wait_min} Min Wartezeit).\n"
+            f"⏱ ETA nach Pausenende: ca. {wait_min + total_picks / (soonest['picks_per_hour'] / 60):.0f} Min ab jetzt."
+        )
 
     if not available:
-        return "⚠️ Keine Mitarbeiter verfügbar – ETA kann nicht berechnet werden."
+        return "⚠️ Keine Mitarbeiter mehr im Dienst – ETA kann nicht berechnet werden."
 
     best = max(available, key=lambda x: x["picks_per_hour"])
     duration_min = total_picks / (best["picks_per_hour"] / 60)
-    eta = datetime.now() + timedelta(minutes=duration_min)
+    eta = now + timedelta(minutes=duration_min)
 
     auftrag_str = ", ".join(order_ids) if len(order_ids) > 1 else order_ids[0]
     return (
@@ -246,7 +301,7 @@ def ewm_get_tasks(_=None) -> str:
         tasks = [
             {"Tanum": "0000001001", "Vlpla": "A-01-01", "Nlpla": "GI-ZONE", "Matnr": "MAT-001", "Menge": 5.0,  "Meins": "ST"},
             {"Tanum": "0000001002", "Vlpla": "B-03-02", "Nlpla": "GI-ZONE", "Matnr": "MAT-047", "Menge": 12.0, "Meins": "ST"},
-            {"Tanum": "0000001003", "Vlpla": "C-02-05", "Nlpla": "GI-ZONE", "Matnr": "MAT-112", "Menge": 3.0,  "Meins": "KG"},
+            {"Tanum": "0000001003", "Vlpla": "C-02-05", "Nlpla": "GI-ZONE", "Matnr": "MAT-112", "Menge": 3.0,  "Meins": "ST"},
             {"Tanum": "0000001004", "Vlpla": "GR-ZONE", "Nlpla": "D-01-01", "Matnr": "MAT-033", "Menge": 8.0,  "Meins": "ST"},
         ]
         lines = [f"📋 Offene Lageraufgaben ({len(tasks)} Tasks) [DEMO]:"]

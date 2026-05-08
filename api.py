@@ -16,7 +16,7 @@ from tools import (
     schedule_employees,
     calculate_eta,
     ewm_get_tasks,
-    MOCK_EMPLOYEES,
+    _get_mock_employees,
 )
 from agent import run_agent
 
@@ -77,13 +77,16 @@ def get_tasks():
         line = line.strip()
         if line.startswith("TA"):
             parts = line.replace("TA ", "").split("|")
-            if len(parts) >= 4:
+            if len(parts) >= 3:
+                # parts[1] enthält "VLPLA → NLPLA" – mit → trennen
+                loc = parts[1].strip()
+                von, nach = (loc.split("→", 1) + [""])[:2]
                 tasks.append({
-                    "tanum":  parts[0].strip(),
-                    "von":    parts[1].strip(),
-                    "nach":   parts[2].strip(),
-                    "matnr":  parts[3].strip() if len(parts) > 3 else "",
-                    "menge":  parts[4].strip() if len(parts) > 4 else "",
+                    "tanum": parts[0].strip(),
+                    "von":   von.strip(),
+                    "nach":  nach.strip(),
+                    "matnr": parts[2].strip() if len(parts) > 2 else "",
+                    "menge": parts[3].strip() if len(parts) > 3 else "",
                 })
     return {"count": len(tasks), "tasks": tasks, "raw": result}
 
@@ -115,7 +118,7 @@ def get_employees():
     from datetime import datetime
     now = datetime.now().strftime("%H:%M")
     employees = []
-    for emp in MOCK_EMPLOYEES:
+    for emp in _get_mock_employees():
         if emp["break_until"] and emp["break_until"] > now:
             status = "pause"
         elif emp["shift_end"] <= now:
@@ -157,10 +160,8 @@ def metrics():
     """Alle Dashboard-Metriken in einem Call – für das Live-Dashboard."""
     from datetime import datetime
 
-    # Tasks
-    tasks_raw = ewm_get_tasks()
-    task_lines = [l for l in tasks_raw.split("\n") if l.strip().startswith("TA")]
-    task_count = len(task_lines)
+    # Tasks – vollständig geparst für das Dashboard
+    tasks_data = get_tasks()
 
     # Employees
     emp_data = get_employees()
@@ -175,10 +176,7 @@ def metrics():
 
     return {
         "timestamp": datetime.now().isoformat(),
-        "tasks": {
-            "open": task_count,
-            "raw": tasks_raw
-        },
+        "tasks": tasks_data,
         "employees": emp_data,
         "route": route_data,
         "eta": {

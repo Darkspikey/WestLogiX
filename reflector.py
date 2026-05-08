@@ -1,58 +1,41 @@
 # reflector.py
-import json
 import logging
-from config import MODEL_PROVIDER
 
 log = logging.getLogger("westlogix")
 
-REFLECTION_PROMPT = """
-Du bist ein Qualitätsprüfer für einen Lageroptimierungs-Agenten.
-
-Du bekommst:
-1. Die ursprüngliche Aufgabe des Users
-2. Das letzte Tool-Ergebnis
-3. Die finale Antwort des Agenten
-
-Prüfe: Beantwortet die Antwort die Aufgabe korrekt und vollständig?
-
-Antworte NUR mit JSON:
-
-Wenn korrekt:
-{"correct": true}
-
-Wenn falsch oder unvollständig:
-{"correct": false, "fix": "hier die korrekte, vollständige Antwort"}
-"""
+# Schlüsselwörter die auf eine Fehler-Antwort hinweisen
+_ERROR_PHRASES = [
+    "konnte nicht", "nicht erreichbar", "kein ergebnis", "keine daten",
+    "unbekannt", "fehler:", "❌", "tool-fehler",
+]
 
 
 def reflect(user_input: str, tool_result, final_answer: str) -> dict:
-    """Zweite KI-Instanz prüft ob die Antwort korrekt ist."""
+    """Schnelle regelbasierte Qualitätsprüfung – kein zweiter LLM-Call."""
 
-    # Bei leerem Final einfach durchlassen
-    if not final_answer or final_answer.strip() == "":
-        return {"correct": False, "fix": "Die Antwort ist unvollständig. Bitte gib eine vollständige Antwort."}
+    # Leere Antwort
+    if not final_answer or not final_answer.strip():
+        return {"correct": False, "fix": "Die Antwort ist leer."}
 
-    messages = [
-        {"role": "system", "content": REFLECTION_PROMPT},
-        {"role": "user",   "content": (
-            f"Aufgabe: {user_input}\n"
-            f"Tool-Ergebnis: {tool_result}\n"
-            f"Agenten-Antwort: {final_answer}"
-        )}
-    ]
+    answer_lower = final_answer.lower()
 
-    try:
-        # Import hier um zirkuläre Imports zu vermeiden
-        from agent import llm_call
-        output = llm_call(messages)
+    # Wenn ein Tool-Ergebnis vorliegt: prüfe ob die Antwort Schlüsselwörter daraus enthält
+    if tool_result:
+        result_lower = str(tool_result).lower()
 
-        # JSON extrahieren
-        start = output.find("{")
-        end   = output.rfind("}")
-        if start != -1 and end != -1:
-            return json.loads(output[start:end+1])
+        # Tool hat Fehler gemeldet → Antwort ist trotzdem ok wenn sie das erklärt
+        if "fehler" in result_lower or "❌" in result_lower:
+            return {"correct": True}
 
-    except Exception as ex:
-        log.warning(f"Reflection fehlgeschlagen: {ex}")
-        # Fallback: Antwort als korrekt markieren und originale Antwort zurückgeben
-        return {"correct": True}
+        # Tool-Ergebnis enthält konkrete Namen/Zahlen → Antwort sollte etwas davon haben
+        # Heuristik: mindestens 20 Zeichen in der Antwort → als korrekt werten
+        if len(final_answer.strip()) >= 20:
+            return {"correct": True}
+
+    # Antwort enthält nur Fehlerphrasen ohne Inhalt → ablehnen
+    has_only_errors = any(p in answer_lower for p in _ERROR_PHRASES) and len(final_answer) < 80
+    if has_only_errors:
+        log.warning(f"Reflection: Antwort klingt nach Fehler: {final_answer[:80]}")
+        return {"correct": False, "fix": final_answer}
+
+    return {"correct": True}

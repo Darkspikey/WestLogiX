@@ -76,6 +76,7 @@
   .badge{font-size:10px;font-family:var(--mono);padding:2px 6px;border-radius:3px;margin-left:4px}
   .badge-ok{background:rgba(0,212,160,0.1);color:var(--accent)}
   .badge-pause{background:rgba(245,158,11,0.1);color:var(--warn)}
+  .badge-off{background:rgba(239,68,68,0.1);color:#ef4444}
   .route-viz{display:flex;align-items:center;gap:0;flex-wrap:wrap;gap:4px}
   .route-node{display:flex;flex-direction:column;align-items:center;padding:8px 10px;border-radius:8px;min-width:56px;border:1px solid var(--border2);background:var(--surface2)}
   .route-node.start{border-color:var(--accent);background:rgba(0,212,160,0.08)}
@@ -237,75 +238,48 @@
     <div class="metrics">
       <div class="metric-card"><div class="metric-label">Offene Tasks</div><div class="metric-value" id="m1">24</div><div class="metric-delta down">+6 seit 08:00</div></div>
       <div class="metric-card"><div class="metric-label">Wegezeit-Ersparnis</div><div class="metric-value green">62%</div><div class="metric-delta up">vs. unsortiert</div></div>
-      <div class="metric-card"><div class="metric-label">Picker aktiv</div><div class="metric-value blue">4 / 5</div><div class="metric-delta warn">1 in Pause</div></div>
+      <div class="metric-card"><div class="metric-label">Picker aktiv</div><div class="metric-value blue" id="m3">– / –</div><div class="metric-delta warn" id="m3-sub"></div></div>
       <div class="metric-card"><div class="metric-label">ETA Genauigkeit</div><div class="metric-value">±4 Min</div><div class="metric-delta up">+91% besser</div></div>
     </div>
     <div class="grid3">
       <div class="panel">
-        <div class="panel-header"><span class="panel-title">Aktive Lageraufgaben</span><span style="font-size:11px;font-family:var(--mono);color:var(--accent)">5 angezeigt</span></div>
+        <div class="panel-header"><span class="panel-title">Aktive Lageraufgaben</span><span id="task-count-hdr" style="font-size:11px;font-family:var(--mono);color:var(--accent)">– angezeigt</span></div>
         <div class="panel-body" style="padding:0">
           <table class="task-table">
             <thead><tr><th>TA-Nr</th><th>Von</th><th>Nach</th><th>Zone</th><th>Menge</th><th>Status</th></tr></thead>
-            <tbody>
-              <tr><td style="font-family:var(--mono)">0001001</td><td style="color:var(--muted)">A-01-01</td><td style="color:var(--muted)">GI-ZONE</td><td><span class="zone-pill zone-a">A</span></td><td style="font-family:var(--mono)">5 ST</td><td><span class="s-active">● AKTIV</span></td></tr>
-              <tr><td style="font-family:var(--mono)">0001002</td><td style="color:var(--muted)">B-03-02</td><td style="color:var(--muted)">GI-ZONE</td><td><span class="zone-pill zone-b">B</span></td><td style="font-family:var(--mono)">12 ST</td><td><span class="s-active">● AKTIV</span></td></tr>
-              <tr><td style="font-family:var(--mono)">0001003</td><td style="color:var(--muted)">C-02-05</td><td style="color:var(--muted)">GI-ZONE</td><td><span class="zone-pill zone-c">C</span></td><td style="font-family:var(--mono)">3 KG</td><td><span class="s-open">○ OFFEN</span></td></tr>
-              <tr><td style="font-family:var(--mono)">0001004</td><td style="color:var(--muted)">GR-ZONE</td><td style="color:var(--muted)">D-01-01</td><td><span class="zone-pill zone-d">D</span></td><td style="font-family:var(--mono)">8 ST</td><td><span class="s-open">○ OFFEN</span></td></tr>
-              <tr><td style="font-family:var(--mono)">0001005</td><td style="color:var(--muted)">A-05-03</td><td style="color:var(--muted)">GI-ZONE</td><td><span class="zone-pill zone-a">A</span></td><td style="font-family:var(--mono)">2 ST</td><td><span class="s-done">✓ FERTIG</span></td></tr>
+            <tbody id="task-tbody">
+              <tr><td colspan="6" style="color:var(--muted);text-align:center;padding:16px">Lade Tasks…</td></tr>
             </tbody>
           </table>
         </div>
       </div>
       <div class="panel">
-        <div class="panel-header"><span class="panel-title">Mitarbeiter</span><span style="font-size:11px;font-family:var(--mono);color:var(--accent)">236 Picks/h</span></div>
+        <div class="panel-header"><span class="panel-title">Mitarbeiter</span><span id="emp-capacity" style="font-size:11px;font-family:var(--mono);color:var(--accent)">– Picks/h</span></div>
         <div class="panel-body">
-          <div class="emp-list">
-            <div class="emp-item"><div class="emp-avatar" style="background:rgba(0,212,160,0.12);color:var(--accent)">LW</div><div><div class="emp-name">Lisa Weber</div><div class="emp-zone">Zone C · bis 19:00</div></div><div class="emp-stat"><div class="emp-picks green">60</div><div class="emp-label">picks/h</div></div><span class="badge badge-ok">verfügbar</span></div>
-            <div class="emp-item"><div class="emp-avatar" style="background:rgba(0,144,255,0.12);color:var(--accent2)">MM</div><div><div class="emp-name">Max Müller</div><div class="emp-zone">Zone A · bis 23:59</div></div><div class="emp-stat"><div class="emp-picks" style="color:var(--accent2)">45</div><div class="emp-label">picks/h</div></div><span class="badge badge-ok">verfügbar</span></div>
-            <div class="emp-item"><div class="emp-avatar" style="background:rgba(245,158,11,0.12);color:var(--warn)">AS</div><div><div class="emp-name">Anna Schmidt</div><div class="emp-zone">Zone B · bis 20:30</div></div><div class="emp-stat"><div class="emp-picks" style="color:var(--warn)">52</div><div class="emp-label">picks/h</div></div><span class="badge badge-pause">Pause 13:15</span></div>
-            <div class="emp-item"><div class="emp-avatar" style="background:rgba(167,139,250,0.12);color:#a78bfa">BK</div><div><div class="emp-name">Ben Koch</div><div class="emp-zone">Zone B · bis 15:00</div></div><div class="emp-stat"><div class="emp-picks" style="color:#a78bfa">41</div><div class="emp-label">picks/h</div></div><span class="badge badge-ok">verfügbar</span></div>
+          <div class="emp-list" id="emp-list">
+            <div style="color:var(--muted);font-size:12px;padding:8px">Lade Mitarbeiterdaten…</div>
           </div>
         </div>
       </div>
     </div>
     <div class="grid2">
       <div class="panel">
-        <div class="panel-header"><span class="panel-title">Optimierte Pick-Route</span><span style="font-size:11px;font-family:var(--mono);color:var(--accent)">62% Ersparnis</span></div>
+        <div class="panel-header"><span class="panel-title">Optimierte Pick-Route</span><span id="route-savings-hdr" style="font-size:11px;font-family:var(--mono);color:var(--accent)">– Ersparnis</span></div>
         <div class="panel-body">
-          <div class="route-viz">
-            <div class="route-node start"><div class="route-node-zone" style="color:var(--accent)">A</div><div class="route-node-id">WT009</div></div>
-            <div class="route-arrow">→</div>
-            <div class="route-node"><div class="route-node-zone" style="color:var(--accent)">A</div><div class="route-node-id">WT003</div></div>
-            <div class="route-arrow">→</div>
-            <div class="route-node"><div class="route-node-zone" style="color:var(--accent2)">B</div><div class="route-node-id">WT001</div></div>
-            <div class="route-arrow">→</div>
-            <div class="route-node"><div class="route-node-zone" style="color:var(--accent2)">B</div><div class="route-node-id">WT006</div></div>
-            <div class="route-arrow">→</div>
-            <div class="route-node"><div class="route-node-zone" style="color:var(--warn)">C</div><div class="route-node-id">WT004</div></div>
-            <div class="route-arrow">→</div>
-            <div class="route-node"><div class="route-node-zone" style="color:#a78bfa">D</div><div class="route-node-id">WT007</div></div>
-          </div>
-          <div class="route-stats">
-            <div><div class="rs-val green">5:29</div><div class="rs-lbl">optimiert (min)</div></div>
-            <div><div class="rs-val">14:22</div><div class="rs-lbl">ohne Optimierung</div></div>
-            <div><div class="rs-val green">–8:53</div><div class="rs-lbl">Ersparnis heute</div></div>
-          </div>
+          <div class="route-viz" id="route-viz"><div style="color:var(--muted);font-size:12px">Lade Route…</div></div>
+          <div class="route-stats" id="route-stats"></div>
         </div>
       </div>
       <div class="panel">
         <div class="panel-header"><span class="panel-title">ETA Übersicht</span><span style="font-size:11px;font-family:var(--mono);color:var(--muted)">Live</span></div>
         <div class="panel-body">
-          <div class="eta-list">
-            <div class="eta-item"><div class="eta-top"><span class="eta-id">WT4711</span><span class="eta-time" id="eta1">–</span></div><div class="eta-bar-bg"><div class="eta-bar-fill" style="width:65%;background:var(--accent)"></div></div><div class="eta-meta"><span>24 Picks · Lisa Weber</span><span>±4 Min</span></div></div>
-            <div class="eta-item"><div class="eta-top"><span class="eta-id">WT4712</span><span class="eta-time" id="eta2">–</span></div><div class="eta-bar-bg"><div class="eta-bar-fill" style="width:40%;background:var(--accent2)"></div></div><div class="eta-meta"><span>18 Picks · Max Müller</span><span>±4 Min</span></div></div>
-            <div class="eta-item"><div class="eta-top"><span class="eta-id">WT4713</span><span class="eta-time" id="eta3">–</span></div><div class="eta-bar-bg"><div class="eta-bar-fill" style="width:25%;background:#a78bfa"></div></div><div class="eta-meta"><span>30 Picks · Ben Koch</span><span>±4 Min</span></div></div>
-          </div>
+          <div class="eta-list" id="eta-list"><div style="color:var(--muted);font-size:12px;padding:8px">Lade ETA…</div></div>
           <div class="cap-row">
             <div class="ring-wrap">
-              <svg class="ring-svg" width="80" height="80" viewBox="0 0 80 80"><circle cx="40" cy="40" r="30" fill="none" stroke="var(--surface2)" stroke-width="8"/><circle cx="40" cy="40" r="30" fill="none" stroke="var(--accent)" stroke-width="8" stroke-dasharray="188.5" stroke-dashoffset="56.55" stroke-linecap="round"/></svg>
-              <div class="ring-text"><div class="ring-pct">70%</div><div class="ring-lbl">Auslastung</div></div>
+              <svg class="ring-svg" width="80" height="80" viewBox="0 0 80 80"><circle cx="40" cy="40" r="30" fill="none" stroke="var(--surface2)" stroke-width="8"/><circle id="ring-circle" cx="40" cy="40" r="30" fill="none" stroke="var(--accent)" stroke-width="8" stroke-dasharray="188.5" stroke-dashoffset="188.5" stroke-linecap="round"/></svg>
+              <div class="ring-text"><div class="ring-pct" id="ring-pct">–%</div><div class="ring-lbl">Auslastung</div></div>
             </div>
-            <div><div class="cap-val">236 <span style="font-size:13px;color:var(--muted)">Picks/h</span></div><div class="cap-sub">verfügbare Kapazität</div><div class="cap-sub" style="margin-top:4px;color:var(--warn)">+52 Picks/h in 47 Min (Anna)</div></div>
+            <div><div class="cap-val"><span id="cap-val-picks">–</span> <span style="font-size:13px;color:var(--muted)">Picks/h</span></div><div class="cap-sub">verfügbare Kapazität</div><div class="cap-sub" id="cap-warn" style="margin-top:4px;color:var(--warn)"></div></div>
           </div>
         </div>
       </div>
@@ -350,11 +324,113 @@
   </main>
 </div>
 <script>
-function addMin(m){const d=new Date();d.setMinutes(d.getMinutes()+m);return d.toLocaleTimeString('de-DE',{hour:'2-digit',minute:'2-digit'})}
 function now(){return new Date().toLocaleTimeString('de-DE',{hour:'2-digit',minute:'2-digit',second:'2-digit'})}
-function updateETAs(){document.getElementById('eta1').textContent=addMin(24);document.getElementById('eta2').textContent=addMin(18);document.getElementById('eta3').textContent=addMin(44)}
 function updateClock(){document.getElementById('clock').textContent=now();document.getElementById('log-ts').textContent='['+now()+']'}
-function refresh(){updateETAs();document.querySelectorAll('.chart-bar').forEach(b=>{b.style.height=(25+Math.floor(Math.random()*65))+'%'})}
+function refresh(){fetchMetrics()}
+
+const ZONE_COLORS = {A:'var(--accent)',B:'var(--accent2)',C:'var(--warn)',D:'#a78bfa'};
+const ZONE_CLASSES = {A:'zone-a',B:'zone-b',C:'zone-c',D:'zone-d'};
+
+function renderTasks(tasks, count) {
+  const tbody = document.getElementById('task-tbody');
+  const hdr   = document.getElementById('task-count-hdr');
+  if (hdr) hdr.textContent = (count || (tasks && tasks.length) || 0) + ' angezeigt';
+  if (!tbody || !tasks) return;
+  if (tasks.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="6" style="color:var(--muted);text-align:center;padding:16px">Keine offenen Tasks</td></tr>';
+    return;
+  }
+  tbody.innerHTML = tasks.map((t, i) => {
+    // Zone aus Von-Lagerplatz; bei Sonderzonen (GR-ZONE, GI-ZONE) Ziel-Lagerplatz nehmen
+    const vonLetter = (t.von || '')[0].toUpperCase();
+    const zone = ZONE_CLASSES[vonLetter] ? vonLetter : (t.nach || '?')[0].toUpperCase();
+    const zc = ZONE_CLASSES[zone] || 'zone-a';
+    const status = i < 2 ? '<span class="s-active">● AKTIV</span>' : '<span class="s-open">○ OFFEN</span>';
+    return `<tr><td style="font-family:var(--mono)">${t.tanum}</td><td style="color:var(--muted)">${t.von}</td><td style="color:var(--muted)">${t.nach}</td><td><span class="zone-pill ${zc}">${zone}</span></td><td style="font-family:var(--mono)">${t.menge}</td><td>${status}</td></tr>`;
+  }).join('');
+}
+
+function renderRoute(route) {
+  const viz = document.getElementById('route-viz');
+  const stats = document.getElementById('route-stats');
+  const hdr = document.getElementById('route-savings-hdr');
+  if (!viz || !route?.route) return;
+
+  const nodes = route.route.split('→').map(s => s.trim()).filter(Boolean);
+  viz.innerHTML = nodes.map((n, i) => {
+    const m = n.match(/^(\w+)\(([A-Z])\)$/);
+    if (!m) return '';
+    const [, id, zone] = m;
+    const color = ZONE_COLORS[zone] || 'var(--muted)';
+    const cls = i === 0 ? 'route-node start' : 'route-node';
+    const arrow = i < nodes.length - 1 ? '<div class="route-arrow">→</div>' : '';
+    return `<div class="${cls}"><div class="route-node-zone" style="color:${color}">${zone}</div><div class="route-node-id">${id}</div></div>${arrow}`;
+  }).join('');
+
+  if (stats && route.wegezeit) {
+    stats.innerHTML = `
+      <div><div class="rs-val green">${route.wegezeit.replace(' Min ',"'").replace(' Sek','\"')}</div><div class="rs-lbl">optimiert</div></div>
+      <div><div class="rs-val">${route.einsparung || '–'}</div><div class="rs-lbl">Einsparung</div></div>`;
+  }
+  if (hdr) hdr.textContent = (route.einsparung || '–') + ' Ersparnis';
+}
+
+function renderETA(etaData) {
+  const list = document.getElementById('eta-list');
+  if (!list || !etaData) return;
+  const ETA_COLORS = ['var(--accent)', 'var(--accent2)', '#a78bfa'];
+  const entries = Object.entries(etaData);
+  list.innerHTML = entries.map(([id, raw], i) => {
+    const timeM   = raw.match(/ETA: (\d{2}:\d{2})/);
+    const pauseM  = raw.match(/ab (\d{2}:\d{2}) Uhr/);
+    const picksM  = raw.match(/Gesamt Picks: (\d+)/);
+    const pickerM = raw.match(/Bester Picker: (.+?) \(/);
+    const pauseNM = raw.match(/👷 (.+?) ist ab/);
+
+    const isUnavailable = !timeM;
+    const etaTime = timeM  ? timeM[1]  : (pauseM ? '⏸ ' + pauseM[1] : '–');
+    const picks   = picksM ? picksM[1] + ' Picks' : '–';
+    const picker  = pickerM ? pickerM[1] : (pauseNM ? pauseNM[1] + ' (Pause)' : 'kein Picker');
+    const color   = isUnavailable ? 'var(--warn)' : ETA_COLORS[i % ETA_COLORS.length];
+    const barW    = isUnavailable ? 0 : (30 + i * 20);
+    return `<div class="eta-item">
+      <div class="eta-top"><span class="eta-id">${id}</span><span class="eta-time" style="color:${color}">${etaTime}</span></div>
+      <div class="eta-bar-bg"><div class="eta-bar-fill" style="width:${barW}%;background:${color}"></div></div>
+      <div class="eta-meta"><span>${picks} · ${picker}</span><span>±4 Min</span></div>
+    </div>`;
+  }).join('');
+}
+
+function renderCapacity(emp) {
+  if (!emp) return;
+  const maxCap = 236;
+  const pct = Math.round((emp.capacity_per_hour / maxCap) * 100);
+  const offset = 188.5 * (1 - pct / 100);
+  const circle = document.getElementById('ring-circle');
+  if (circle) circle.setAttribute('stroke-dashoffset', offset.toFixed(1));
+  const pctEl = document.getElementById('ring-pct');
+  if (pctEl) pctEl.textContent = pct + '%';
+  const capEl = document.getElementById('cap-val-picks');
+  if (capEl) capEl.textContent = emp.capacity_per_hour;
+
+  const warn = document.getElementById('cap-warn');
+  if (warn) {
+    const onBreak = (emp.employees || []).filter(e => e.status === 'pause');
+    if (onBreak.length > 0) {
+      const e = onBreak[0];
+      warn.textContent = `+${e.picks_per_hour} Picks/h ab ${e.break_until} (${e.name.split(' ')[0]})`;
+    } else {
+      warn.textContent = '';
+    }
+  }
+
+  const m3 = document.getElementById('m3');
+  if (m3) m3.textContent = `${emp.available} / ${emp.total}`;
+  const m3sub = document.getElementById('m3-sub');
+  if (m3sub) {
+    m3sub.textContent = emp.on_break > 0 ? `${emp.on_break} in Pause` : 'alle verfügbar';
+  }
+}
 const logLines=[
   ['ll','optimize_route','→ Route neu berechnet · 62%'],
   ['ll','calculate_eta','→ WT4714:16 · +14 Min'],
@@ -374,10 +450,8 @@ function appendLog(){
   log.scrollTop=log.scrollHeight;
   if(log.children.length>20)log.removeChild(log.children[0]);
 }
-updateETAs();
 setInterval(updateClock,1000);
 setInterval(appendLog,4000);
-setInterval(updateETAs,60000);
 </script>
 
 <!-- ─── AGENT CHAT WIDGET ─────────────────────────────────────── -->
@@ -505,25 +579,66 @@ function sendSuggestion(btn) {
 <script>
 const API = 'http://localhost:8000/api';
 
+const EMP_COLORS = [
+  { bg: 'rgba(0,212,160,0.12)',  fg: 'var(--accent)' },
+  { bg: 'rgba(0,144,255,0.12)',  fg: 'var(--accent2)' },
+  { bg: 'rgba(245,158,11,0.12)', fg: 'var(--warn)' },
+  { bg: 'rgba(167,139,250,0.12)',fg: '#a78bfa' },
+  { bg: 'rgba(239,68,68,0.12)',  fg: '#ef4444' },
+];
+
+function renderEmployees(employees, capacityPerHour) {
+  const list = document.getElementById('emp-list');
+  const cap  = document.getElementById('emp-capacity');
+  if (!list || !employees) return;
+
+  cap.textContent = `${capacityPerHour} Picks/h`;
+
+  list.innerHTML = employees.map((e, i) => {
+    const color = EMP_COLORS[i % EMP_COLORS.length];
+    const initials = e.name.split(' ').map(w => w[0]).join('');
+    const picksColor = e.status === 'available' ? 'var(--accent)'
+                     : e.status === 'pause'     ? 'var(--warn)'
+                     : 'var(--muted)';
+
+    let badge = '';
+    if (e.status === 'available') {
+      badge = '<span class="badge badge-ok">verfügbar</span>';
+    } else if (e.status === 'pause') {
+      badge = `<span class="badge badge-pause">Pause ${e.break_until}</span>`;
+    } else {
+      badge = '<span class="badge badge-off">Schicht Ende</span>';
+    }
+
+    return `
+      <div class="emp-item">
+        <div class="emp-avatar" style="background:${color.bg};color:${color.fg}">${initials}</div>
+        <div>
+          <div class="emp-name">${e.name}</div>
+          <div class="emp-zone">Zone ${e.zone} · bis ${e.shift_end}</div>
+        </div>
+        <div class="emp-stat">
+          <div class="emp-picks" style="color:${picksColor}">${e.picks_per_hour}</div>
+          <div class="emp-label">picks/h</div>
+        </div>
+        ${badge}
+      </div>`;
+  }).join('');
+}
+
 async function fetchMetrics() {
   try {
     const res = await fetch(`${API}/metrics`);
     if (!res.ok) return;
     const d = await res.json();
 
-    // Tasks
-    document.getElementById('m1').textContent = d.tasks.open;
+    document.getElementById('m1').textContent = d.tasks.count || d.tasks.open || 0;
+    renderTasks(d.tasks.tasks, d.tasks.count);
+    renderRoute(d.route);
+    renderETA(d.eta);
+    renderEmployees(d.employees.employees, d.employees.capacity_per_hour);
+    renderCapacity(d.employees);
 
-    // Employees
-    const emp = d.employees;
-    document.querySelector('.metric-value.blue').textContent =
-      `${emp.available} / ${emp.total}`;
-
-    // Kapazität
-    document.getElementById('cap-total') &&
-      (document.getElementById('cap-total').textContent = `${emp.capacity_per_hour} Picks/h`);
-
-    // Savings
     if (d.route?.einsparung) {
       document.querySelector('.metric-value.green').textContent =
         d.route.einsparung.replace('%','') + '%';

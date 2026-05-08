@@ -127,6 +127,20 @@ WICHTIGSTE REGELN:
 2. Bei Begrüßungen oder einfachen Fragen ("Hallo", "Wie heiße ich?") → sofort tool="none" + final setzen.
 3. Rufe NIEMALS dasselbe Tool zweimal hintereinander mit identischem Input auf.
 4. Antworte immer auf Deutsch.
+
+MULTI-STEP WORKFLOWS – diese Fragen erfordern mehrere Tool-Aufrufe hintereinander:
+
+Frage nach Dauer / ETA / Abschluss / "Wann fertig?":
+  Schritt 1: ewm_get_tasks   → offene Aufgaben + Gesamtmenge ermitteln
+  Schritt 2: schedule_employees → wer ist verfügbar, wer in Pause (und bis wann)?
+  Schritt 3: calculate_eta mit Format "WT<ID>:<Gesamtmenge>"  → ETA berechnen
+  → Wenn jemand in Pause ist: Pausenende in die Antwort einbeziehen ("verfügbar ab HH:MM")
+  → Erst nach Schritt 3 tool="none" setzen und Antwort in "final" schreiben.
+
+Frage nach Route + Zeit:
+  Schritt 1: ewm_get_tasks   → Zonen der offenen Tasks holen
+  Schritt 2: optimize_route  → Route optimieren
+  → Erst dann final antworten.
 """
 
 
@@ -135,9 +149,9 @@ WICHTIGSTE REGELN:
 def run_agent(user_input: str) -> str:
     log.info(f"User: {user_input}")
 
-    # Loop-Detection: (tool, input) Tupel – nicht nur Result
-    last_tool_call = None
-    reset_count    = 0
+    last_tool_call   = None
+    last_tool_result = None
+    reset_count      = 0
 
     messages = [
         {"role": "system", "content": SYSTEM_PROMPT},
@@ -185,7 +199,7 @@ def run_agent(user_input: str) -> str:
                     "content": "Du hast tool=none gesetzt aber 'final' ist leer oder ungültig ('none'/'null'). Schreibe jetzt eine vollständige Antwort in 'final'."
                 })
                 continue
-            reflection = reflect(user_input, None, final)
+            reflection = reflect(user_input, last_tool_result, final)
             log.info(f"Reflection: {reflection}")
             return reflection.get("fix", final) if not reflection.get("correct") else final
 
@@ -224,6 +238,7 @@ def run_agent(user_input: str) -> str:
         except Exception as ex:
             result = f"Tool-Fehler: {ex}"
 
+        last_tool_result = result
         log.info(f"Tool result: {str(result)[:200]}")
         print(f"🔧 [{tool}] → {result}")
 
