@@ -1490,3 +1490,283 @@
   "final": "Aktuell ist nur **Max Müller** verfügbar (Zone A, 45 Picks/h, Schichtende 23:59). Die anderen Mitarbeiter (Anna Schmidt, Tom Fische
 2026-05-08 22:18:26,065 [INFO] Thought: User fragt nach Verfügbarkeit. Ich habe das Tool-Ergebnis erhalten. Jetzt direkt antworten mit tool=none. | Tool: none | Input: 
 2026-05-08 22:18:56,241 [INFO] Reflection: {'correct': False, 'fix': "Da das Tool-Ergebnis 'None' ist, liegen keine aktuellen Daten zur Verfügbarkeit vor. Der Agent sollte darauf hinweisen, dass keine Daten verfügbar sind, anstatt spezifische Namen und Details zu erfinden."}
+2026-05-08 22:42:25,974 [INFO] User: Wer ist verfügbar?
+2026-05-08 22:42:25,975 [INFO] --- Step 1/8 ---
+2026-05-08 22:42:31,918 [INFO] Raw: {
+  "thought": "User fragt nach Verfügbarkeit. Ich sollte schedule_employees mit 'all' aufrufen, um die allgemeine Verfügbarkeit zu prüfen.",
+  "tool": "schedule_employees",
+  "input": "all",
+  "final": ""
+}
+2026-05-08 22:42:31,919 [INFO] Thought: User fragt nach Verfügbarkeit. Ich sollte schedule_employees mit 'all' aufrufen, um die allgemeine Verfügbarkeit zu prüfen. | Tool: schedule_employees | Input: all
+2026-05-08 22:42:31,919 [INFO] Tool result: 🕐 Aktuell: 22:42
+
+✅ Verfügbar (1):
+  Max Müller | Zone A | 45 Picks/h | Schichtende 23:59
+
+🔴 Schicht beendet: Anna Schmidt, Tom Fischer, Lisa Weber, Ben Koch
+
+⚡ Aktuelle Gesamtkapazität: 45 Picks/Stun
+2026-05-08 22:42:31,919 [INFO] --- Step 2/8 ---
+2026-05-08 22:42:35,993 [INFO] Raw: {
+  "thought": "Der User fragt nach Verfügbarkeit. Das Tool schedule_employees wurde bereits aufgerufen und liefert die aktuellen Daten. Keine weiteren Tools nötig.",
+  "tool": "none",
+  "input": "",
+  "final": "Aktuell ist nur Max Müller verfügbar (Zone A, 45 Picks/h, Schichtende 23:59 Uhr). Alle a
+2026-05-08 22:42:35,993 [INFO] Thought: Der User fragt nach Verfügbarkeit. Das Tool schedule_employees wurde bereits aufgerufen und liefert die aktuellen Daten. Keine weiteren Tools nötig. | Tool: none | Input: 
+2026-05-08 22:42:59,934 [INFO] Reflection: {'correct': False, 'fix': "Entschuldigung, ich konnte keine aktuellen Verfügbarkeitsdaten abrufen. Da das Tool-Ergebnis 'None' war, liegen keine Informationen vor. Bitte versuchen Sie es erneut oder kontaktieren Sie den Lagerleiter."}
+2026-05-08 22:44:58,319 [INFO] User: Wer ist verfügbar?
+2026-05-08 22:44:58,319 [INFO] --- Step 1/8 ---
+2026-05-08 22:45:01,230 [INFO] Raw: {
+  "thought": "User fragt nach Verfügbarkeit. Ich sollte schedule_employees mit 'all' aufrufen, um die allgemeine Verfügbarkeit zu prüfen.",
+  "tool": "schedule_employees",
+  "input": "all",
+  "final": ""
+}
+2026-05-08 22:45:01,231 [INFO] Thought: User fragt nach Verfügbarkeit. Ich sollte schedule_employees mit 'all' aufrufen, um die allgemeine Verfügbarkeit zu prüfen. | Tool: schedule_employees | Input: all
+2026-05-08 22:45:01,231 [INFO] Tool result: 🕐 Aktuell: 22:45
+
+⏸ In Pause (1):
+  Anna Schmidt | verfügbar ab 23:29
+
+🔴 Schicht beendet: Max Müller, Tom Fischer, Lisa Weber, Ben Koch
+
+⚡ Aktuelle Gesamtkapazität: 0 Picks/Stunde
+2026-05-08 22:45:01,231 [INFO] --- Step 2/8 ---
+2026-05-08 22:45:03,821 [INFO] Raw: {
+  "thought": "User fragt nach Verfügbarkeit. Ich habe das Tool schedule_employees bereits aufgerufen und das Ergebnis erhalten. Jetzt muss ich die Antwort basierend auf diesem Ergebnis geben.",
+  "tool": "none",
+  "input": "",
+  "final": "Aktuell sind keine Mitarbeiter verfügbar. Anna Schmidt ist 
+2026-05-08 22:45:03,821 [INFO] Thought: User fragt nach Verfügbarkeit. Ich habe das Tool schedule_employees bereits aufgerufen und das Ergebnis erhalten. Jetzt muss ich die Antwort basierend auf diesem Ergebnis geben. | Tool: none | Input: 
+2026-05-08 22:47:03,841 [WARNING] Reflection fehlgeschlagen: timed out
+2026-05-08 22:47:03,841 [INFO] Reflection: {'correct': True}
+2026-05-08 22:48:55,883 [INFO] User: Wer ist verfügbar?
+2026-05-08 22:48:55,884 [INFO] --- Step 1/8 ---
+2026-05-08 22:48:58,821 [INFO] Raw: {
+  "thought": "User fragt nach Verfügbarkeit. Ich sollte schedule_employees mit 'all' aufrufen, um die allgemeine Verfügbarkeit zu prüfen.",
+  "tool": "schedule_employees",
+  "input": "all",
+  "final": ""
+}
+2026-05-08 22:48:58,822 [INFO] Thought: User fragt nach Verfügbarkeit. Ich sollte schedule_employees mit 'all' aufrufen, um die allgemeine Verfügbarkeit zu prüfen. | Tool: schedule_employees | Input: all
+2026-05-08 22:48:58,822 [INFO] Tool result: 🕐 Aktuell: 22:48
+
+🔴 Schicht beendet: Max Müller, Anna Schmidt, Tom Fischer, Lisa Weber, Ben Koch
+
+⚡ Aktuelle Gesamtkapazität: 0 Picks/Stunde
+2026-05-08 22:48:58,822 [INFO] --- Step 2/8 ---
+2026-05-08 22:49:02,040 [INFO] Raw: {
+  "thought": "User asks who is available. I have the tool result showing all employees' shift has ended at 22:48 with 0 capacity. I can answer directly without another tool call.",
+  "tool": "none",
+  "input": "",
+  "final": "Aktuell sind keine Mitarbeiter verfügbar. Alle genannten Mitarbeiter (Ma
+2026-05-08 22:49:02,040 [INFO] Thought: User asks who is available. I have the tool result showing all employees' shift has ended at 22:48 with 0 capacity. I can answer directly without another tool call. | Tool: none | Input: 
+2026-05-08 22:49:23,285 [INFO] Reflection: {'correct': True}
+2026-05-08 22:54:14,473 [INFO] User: Wer ist verfügbar?
+2026-05-08 22:54:14,473 [INFO] --- Step 1/8 ---
+2026-05-08 22:54:17,365 [INFO] Raw: {
+  "thought": "User fragt nach Verfügbarkeit. Ich sollte schedule_employees mit 'all' aufrufen, um die allgemeine Verfügbarkeit zu prüfen.",
+  "tool": "schedule_employees",
+  "input": "all",
+  "final": ""
+}
+2026-05-08 22:54:17,365 [INFO] Thought: User fragt nach Verfügbarkeit. Ich sollte schedule_employees mit 'all' aufrufen, um die allgemeine Verfügbarkeit zu prüfen. | Tool: schedule_employees | Input: all
+2026-05-08 22:54:17,366 [INFO] Tool result: 🕐 Aktuell: 22:54
+
+🔴 Schicht beendet: Max Müller, Anna Schmidt, Tom Fischer, Lisa Weber, Ben Koch
+
+⚡ Aktuelle Gesamtkapazität: 0 Picks/Stunde
+2026-05-08 22:54:17,366 [INFO] --- Step 2/8 ---
+2026-05-08 22:54:20,513 [INFO] Raw: {
+  "thought": "User fragt nach Verfügbarkeit. Ich habe das Tool-Ergebnis erhalten. Jetzt muss ich die Antwort basierend auf den Daten geben.",
+  "tool": "none",
+  "input": "",
+  "final": "Aktuell sind keine Mitarbeiter verfügbar. Die Schicht wurde beendet. Verfügbare Mitarbeiter: Max Müller, Anna S
+2026-05-08 22:54:20,513 [INFO] Thought: User fragt nach Verfügbarkeit. Ich habe das Tool-Ergebnis erhalten. Jetzt muss ich die Antwort basierend auf den Daten geben. | Tool: none | Input: 
+2026-05-08 22:54:20,513 [INFO] Reflection: {'correct': True}
+2026-05-08 22:59:00,061 [INFO] User: Wer ist verfügbar?
+2026-05-08 22:59:00,062 [INFO] --- Step 1/8 ---
+2026-05-08 22:59:02,811 [INFO] Raw: {
+  "thought": "User fragt nach Verfügbarkeit. Ich sollte schedule_employees mit 'all' aufrufen, um die allgemeine Verfügbarkeit zu prüfen.",
+  "tool": "schedule_employees",
+  "input": "all",
+  "final": ""
+}
+2026-05-08 22:59:02,811 [INFO] Thought: User fragt nach Verfügbarkeit. Ich sollte schedule_employees mit 'all' aufrufen, um die allgemeine Verfügbarkeit zu prüfen. | Tool: schedule_employees | Input: all
+2026-05-08 22:59:02,812 [INFO] Tool result: 🕐 Aktuell: 22:59
+
+✅ Verfügbar (4):
+  Lisa Weber | Zone C | 60 Picks/h | Schichtende 23:59
+  Anna Schmidt | Zone B | 52 Picks/h | Schichtende 23:59
+  Max Müller | Zone A | 45 Picks/h | Schichtende 23:5
+2026-05-08 22:59:02,812 [INFO] --- Step 2/8 ---
+2026-05-08 22:59:06,173 [INFO] Raw: {
+  "thought": "User fragt nach Verfügbarkeit. Ich habe das Tool-Ergebnis erhalten. Jetzt direkt antworten mit tool=none.",
+  "tool": "none",
+  "input": "",
+  "final": "✅ Aktuell verfügbar sind 4 Mitarbeiter:\n\n• Lisa Weber | Zone C | 60 Picks/h | Schichtende 23:59\n• Anna Schmidt | Zone B | 52 Pic
+2026-05-08 22:59:06,173 [INFO] Thought: User fragt nach Verfügbarkeit. Ich habe das Tool-Ergebnis erhalten. Jetzt direkt antworten mit tool=none. | Tool: none | Input: 
+2026-05-08 22:59:06,173 [INFO] Reflection: {'correct': True}
+2026-05-08 23:01:00,755 [INFO] User: Wer ist verfügbar?
+2026-05-08 23:01:00,756 [INFO] --- Step 1/8 ---
+2026-05-08 23:01:03,442 [INFO] Raw: {
+  "thought": "User fragt nach Verfügbarkeit. Ich sollte schedule_employees mit 'all' aufrufen, um die allgemeine Verfügbarkeit zu prüfen.",
+  "tool": "schedule_employees",
+  "input": "all",
+  "final": ""
+}
+2026-05-08 23:01:03,442 [INFO] Thought: User fragt nach Verfügbarkeit. Ich sollte schedule_employees mit 'all' aufrufen, um die allgemeine Verfügbarkeit zu prüfen. | Tool: schedule_employees | Input: all
+2026-05-08 23:01:03,443 [INFO] Tool result: 🕐 Aktuell: 23:01
+
+⏸ In Pause (1):
+  Lisa Weber | verfügbar ab 23:15
+
+🔴 Schicht beendet: Max Müller, Anna Schmidt, Tom Fischer, Ben Koch
+
+⚡ Aktuelle Gesamtkapazität: 0 Picks/Stunde
+2026-05-08 23:01:03,443 [INFO] --- Step 2/8 ---
+2026-05-08 23:01:06,756 [INFO] Raw: {
+  "thought": "User fragt nach Verfügbarkeit. Ich habe das Tool-Ergebnis erhalten. Jetzt direkt antworten ohne Tool-Aufruf.",
+  "tool": "none",
+  "input": "",
+  "final": "Aktuell sind keine Mitarbeiter verfügbar. Lisa Weber ist in Pause bis 23:15 Uhr. Max Müller, Anna Schmidt, Tom Fischer und Ben K
+2026-05-08 23:01:06,756 [INFO] Thought: User fragt nach Verfügbarkeit. Ich habe das Tool-Ergebnis erhalten. Jetzt direkt antworten ohne Tool-Aufruf. | Tool: none | Input: 
+2026-05-08 23:01:06,756 [INFO] Reflection: {'correct': True}
+2026-05-08 23:01:32,833 [INFO] User: Wieviele Picks sind noch offen?
+2026-05-08 23:01:32,834 [INFO] --- Step 1/8 ---
+2026-05-08 23:01:34,625 [INFO] Raw: {
+  "thought": "User fragt nach offenen Picks. Ich muss Lageraufgaben aus SAP EWM abrufen, um diese Information zu erhalten.",
+  "tool": "ewm_get_tasks",
+  "input": "",
+  "final": ""
+}
+2026-05-08 23:01:34,625 [INFO] Thought: User fragt nach offenen Picks. Ich muss Lageraufgaben aus SAP EWM abrufen, um diese Information zu erhalten. | Tool: ewm_get_tasks | Input: 
+2026-05-08 23:01:34,625 [INFO] Tool result: 📋 Offene Lageraufgaben (4 Tasks) [DEMO]:
+  TA 0000001001 | A-01-01 → GI-ZONE | MAT-001 | 5.0 ST
+  TA 0000001002 | B-03-02 → GI-ZONE | MAT-047 | 12.0 ST
+  TA 0000001003 | C-02-05 → GI-ZONE | MAT-112 | 
+2026-05-08 23:01:34,625 [INFO] --- Step 2/8 ---
+2026-05-08 23:01:36,554 [INFO] Raw: {
+  "thought": "User fragt nach Anzahl offener Picks. Ich habe die Task-Liste erhalten. Jetzt direkt antworten.",
+  "tool": "none",
+  "input": "",
+  "final": "Es sind 4 offene Picks im Lager."
+}
+2026-05-08 23:01:36,554 [INFO] Thought: User fragt nach Anzahl offener Picks. Ich habe die Task-Liste erhalten. Jetzt direkt antworten. | Tool: none | Input: 
+2026-05-08 23:01:36,554 [INFO] Reflection: {'correct': True}
+2026-05-08 23:01:53,736 [INFO] User: Wie lange dauert der Abschluss?
+2026-05-08 23:01:53,736 [INFO] --- Step 1/8 ---
+2026-05-08 23:01:58,174 [INFO] Raw: {
+  "thought": "Der User fragt nach der Dauer des Abschlusses. Ich habe keine spezifischen Informationen gespeichert. Ich sollte ewm_get_tasks aufrufen, um den Kontext der aktuellen Aufgaben zu sehen.",
+  "tool": "ewm_get_tasks",
+  "input": "",
+  "final": ""
+}
+2026-05-08 23:01:58,174 [INFO] Thought: Der User fragt nach der Dauer des Abschlusses. Ich habe keine spezifischen Informationen gespeichert. Ich sollte ewm_get_tasks aufrufen, um den Kontext der aktuellen Aufgaben zu sehen. | Tool: ewm_get_tasks | Input: 
+2026-05-08 23:01:58,174 [INFO] Tool result: 📋 Offene Lageraufgaben (4 Tasks) [DEMO]:
+  TA 0000001001 | A-01-01 → GI-ZONE | MAT-001 | 5.0 ST
+  TA 0000001002 | B-03-02 → GI-ZONE | MAT-047 | 12.0 ST
+  TA 0000001003 | C-02-05 → GI-ZONE | MAT-112 | 
+2026-05-08 23:01:58,175 [INFO] --- Step 2/8 ---
+2026-05-08 23:02:01,804 [INFO] Raw: {
+  "thought": "User fragt nach Abschlussdauer. Ich habe bereits ewm_get_tasks aufgerufen, aber keine Zeitdaten erhalten. Muss eine allgemeine Antwort geben ohne weiteres Tool.",
+  "tool": "none",
+  "input": "",
+  "final": "Die Abschlussdauer hängt von der aktuellen Auftragslage ab. Basierend auf de
+2026-05-08 23:02:01,804 [INFO] Thought: User fragt nach Abschlussdauer. Ich habe bereits ewm_get_tasks aufgerufen, aber keine Zeitdaten erhalten. Muss eine allgemeine Antwort geben ohne weiteres Tool. | Tool: none | Input: 
+2026-05-08 23:02:01,805 [INFO] Reflection: {'correct': True}
+2026-05-08 23:05:12,532 [INFO] User: Wie lange dauert es bis zum Abschluss?
+2026-05-08 23:05:12,533 [INFO] --- Step 1/8 ---
+2026-05-08 23:05:15,998 [INFO] Raw: {
+  "thought": "User fragt nach ETA/Abschlusszeit. Nach Workflow: Zuerst ewm_get_tasks aufrufen, um offene Aufgaben und Gesamtmenge zu ermitteln.",
+  "tool": "ewm_get_tasks",
+  "input": "",
+  "final": ""
+}
+2026-05-08 23:05:15,998 [INFO] Thought: User fragt nach ETA/Abschlusszeit. Nach Workflow: Zuerst ewm_get_tasks aufrufen, um offene Aufgaben und Gesamtmenge zu ermitteln. | Tool: ewm_get_tasks | Input: 
+2026-05-08 23:05:15,998 [INFO] Tool result: 📋 Offene Lageraufgaben (4 Tasks) [DEMO]:
+  TA 0000001001 | A-01-01 → GI-ZONE | MAT-001 | 5.0 ST
+  TA 0000001002 | B-03-02 → GI-ZONE | MAT-047 | 12.0 ST
+  TA 0000001003 | C-02-05 → GI-ZONE | MAT-112 | 
+2026-05-08 23:05:15,998 [INFO] --- Step 2/8 ---
+2026-05-08 23:05:21,811 [INFO] Raw: {
+  "thought": "User fragt nach Abschlusszeit. Ich habe Task-Informationen. Jetzt muss ich Mitarbeiter-Verfügbarkeit prüfen (schedule_employees), dann ETA berechnen (calculate_eta).",
+  "tool": "schedule_employees",
+  "input": "all",
+  "final": ""
+}
+2026-05-08 23:05:21,812 [INFO] Thought: User fragt nach Abschlusszeit. Ich habe Task-Informationen. Jetzt muss ich Mitarbeiter-Verfügbarkeit prüfen (schedule_employees), dann ETA berechnen (calculate_eta). | Tool: schedule_employees | Input: all
+2026-05-08 23:05:21,812 [INFO] Tool result: 🕐 Aktuell: 23:05
+
+⏸ In Pause (1):
+  Lisa Weber | verfügbar ab 23:15
+
+🔴 Schicht beendet: Max Müller, Anna Schmidt, Tom Fischer, Ben Koch
+
+⚡ Aktuelle Gesamtkapazität: 0 Picks/Stunde
+2026-05-08 23:05:21,812 [INFO] --- Step 3/8 ---
+2026-05-08 23:05:27,920 [INFO] Raw: {
+  "thought": "User fragt nach ETA/Abschlusszeit. Ich habe Tasks (Gesamtmenge 28) und Mitarbeiterstatus (Lisa ab 23:15 verfügbar). Jetzt muss ich calculate_eta aufrufen, um ETA zu berechnen.",
+  "tool": "calculate_eta",
+  "input": "28",
+  "final": ""
+}
+2026-05-08 23:05:27,920 [INFO] Thought: User fragt nach ETA/Abschlusszeit. Ich habe Tasks (Gesamtmenge 28) und Mitarbeiterstatus (Lisa ab 23:15 verfügbar). Jetzt muss ich calculate_eta aufrufen, um ETA zu berechnen. | Tool: calculate_eta | Input: 28
+2026-05-08 23:05:27,920 [INFO] Tool result: ⏸ Kein Picker sofort verfügbar.
+👷 Lisa Weber ist ab 23:15 Uhr wieder da (9 Min Wartezeit).
+⏱ ETA nach Pausenende: ca. 37 Min ab jetzt.
+2026-05-08 23:05:27,921 [INFO] --- Step 4/8 ---
+2026-05-08 23:05:31,032 [INFO] Raw: {
+  "thought": "Alle Tools wurden aufgerufen (ewm_get_tasks, schedule_employees, calculate_eta). Jetzt kann ich die Antwort geben.",
+  "tool": "none",
+  "input": "",
+  "final": "Bis zum Abschluss der 4 Lageraufgaben benötigen wir ca. 37 Minuten. Lisa Weber ist ab 23:15 Uhr wieder verfügbar. Die ande
+2026-05-08 23:05:31,032 [INFO] Thought: Alle Tools wurden aufgerufen (ewm_get_tasks, schedule_employees, calculate_eta). Jetzt kann ich die Antwort geben. | Tool: none | Input: 
+2026-05-08 23:05:31,033 [INFO] Reflection: {'correct': True}
+2026-05-08 23:17:30,546 [INFO] User: Wer ist verfügbar?
+2026-05-08 23:17:30,546 [INFO] --- Step 1/8 ---
+2026-05-08 23:17:36,193 [INFO] Raw: {
+  "thought": "User fragt nach Verfügbarkeit. Ich muss schedule_employees aufrufen, um zu sehen, wer verfügbar ist.",
+  "tool": "schedule_employees",
+  "input": "all",
+  "final": ""
+}
+2026-05-08 23:17:36,193 [INFO] Thought: User fragt nach Verfügbarkeit. Ich muss schedule_employees aufrufen, um zu sehen, wer verfügbar ist. | Tool: schedule_employees | Input: all
+2026-05-08 23:17:36,194 [INFO] Tool result: 🕐 Aktuell: 23:17
+
+✅ Verfügbar (1):
+  Lisa Weber | Zone C | 60 Picks/h | Schichtende 23:59
+
+🔴 Schicht beendet: Max Müller, Anna Schmidt, Tom Fischer, Ben Koch
+
+⚡ Aktuelle Gesamtkapazität: 60 Picks/Stun
+2026-05-08 23:17:36,194 [INFO] --- Step 2/8 ---
+2026-05-08 23:17:39,194 [INFO] Raw: {
+  "thought": "User fragt nach Verfügbarkeit. Ich habe das Tool-Ergebnis erhalten. Jetzt antworte ich direkt ohne Tool-Aufruf.",
+  "tool": "none",
+  "input": "",
+  "final": "Aktuell ist nur Lisa Weber verfügbar (Zone C, 60 Picks/h, Schichtende 23:59). Die anderen Mitarbeiter (Max Müller, Anna Schmi
+2026-05-08 23:17:39,194 [INFO] Thought: User fragt nach Verfügbarkeit. Ich habe das Tool-Ergebnis erhalten. Jetzt antworte ich direkt ohne Tool-Aufruf. | Tool: none | Input: 
+2026-05-08 23:17:39,195 [INFO] Reflection: {'correct': True}
+2026-05-08 23:17:54,130 [INFO] User: Wieviel Picks sind noch offen
+2026-05-08 23:17:54,130 [INFO] --- Step 1/8 ---
+2026-05-08 23:17:55,852 [INFO] Raw: {
+  "thought": "User fragt nach offenen Picks. Ich muss ewm_get_tasks aufrufen, um die offenen Lageraufgaben zu ermitteln.",
+  "tool": "ewm_get_tasks",
+  "input": "",
+  "final": ""
+}
+2026-05-08 23:17:55,852 [INFO] Thought: User fragt nach offenen Picks. Ich muss ewm_get_tasks aufrufen, um die offenen Lageraufgaben zu ermitteln. | Tool: ewm_get_tasks | Input: 
+2026-05-08 23:17:55,852 [INFO] Tool result: 📋 Offene Lageraufgaben (4 Tasks) [DEMO]:
+  TA 0000001001 | A-01-01 → GI-ZONE | MAT-001 | 5.0 ST
+  TA 0000001002 | B-03-02 → GI-ZONE | MAT-047 | 12.0 ST
+  TA 0000001003 | C-02-05 → GI-ZONE | MAT-112 | 
+2026-05-08 23:17:55,852 [INFO] --- Step 2/8 ---
+2026-05-08 23:17:59,508 [INFO] Raw: {
+  "thought": "User fragt nach offenen Picks. Ich habe die Task-Daten von ewm_get_tasks erhalten. Jetzt muss ich die Gesamtmenge berechnen und antworten. tool='none' und final setzen.",
+  "tool": "none",
+  "input": "",
+  "final": "Es sind 4 offene Lageraufgaben mit insgesamt 28.0 Stück (ST) noch zu
+2026-05-08 23:17:59,508 [INFO] Thought: User fragt nach offenen Picks. Ich habe die Task-Daten von ewm_get_tasks erhalten. Jetzt muss ich die Gesamtmenge berechnen und antworten. tool='none' und final setzen. | Tool: none | Input: 
+2026-05-08 23:17:59,508 [INFO] Reflection: {'correct': True}
