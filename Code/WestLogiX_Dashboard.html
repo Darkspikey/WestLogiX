@@ -13,7 +13,17 @@
     --text:#e8eaed;--muted:#6b7280;
     --accent:#00d4a0;--accent2:#0090ff;--warn:#f59e0b;--danger:#ef4444;
     --mono:'IBM Plex Mono',monospace;--sans:'DM Sans',sans-serif;
+    --terminal:#0d1117;
   }
+  [data-theme="light"] {
+    --bg:#f5f1eb;--surface:#fdfaf6;--surface2:#ede8e0;
+    --border:rgba(60,40,20,0.10);--border2:rgba(60,40,20,0.18);
+    --text:#1c1410;--muted:#7a6f65;
+    --accent:#00916b;--accent2:#1d5bbf;--warn:#a86200;--danger:#c91d1d;
+    --terminal:#f0ebe3;
+  }
+  [data-theme="light"] .lt{color:#8a7f75}
+  [data-theme="light"] .lr{color:#5a5248}
   *{margin:0;padding:0;box-sizing:border-box}
   body{background:var(--bg);color:var(--text);font-family:var(--sans);font-size:14px;min-height:100vh}
   .topbar{display:flex;align-items:center;justify-content:space-between;padding:0 24px;height:52px;border-bottom:1px solid var(--border);background:var(--surface)}
@@ -102,7 +112,7 @@
   .ring-lbl{font-size:9px;color:var(--muted);font-family:var(--mono)}
   .cap-val{font-size:22px;font-weight:600;font-family:var(--mono)}
   .cap-sub{font-size:11px;color:var(--muted);font-family:var(--mono);margin-top:2px}
-  .agent-log{background:#0d1117;border-radius:8px;padding:12px;font-family:var(--mono);font-size:12px;line-height:1.8;max-height:180px;overflow-y:auto}
+  .agent-log{background:var(--terminal);border-radius:8px;padding:12px;font-family:var(--mono);font-size:12px;line-height:1.8;max-height:180px;overflow-y:auto}
   .lt{color:#4b5563}.ll{color:var(--accent2)}.lok{color:var(--accent)}.lwarn{color:var(--warn)}.lr{color:#9ca3af}
   .cursor{animation:blink 1s infinite;color:var(--accent)}
   @keyframes blink{0%,100%{opacity:1}50%{opacity:0}}
@@ -126,7 +136,7 @@
 .chat-toggle:hover { transform: scale(1.08); }
 .chat-window {
   position: fixed; bottom: 88px; right: 24px; z-index: 998;
-  width: 360px; background: #0d1117;
+  width: 360px; background: var(--terminal);
   border: 1px solid var(--border2); border-radius: 14px;
   overflow: hidden; display: none; flex-direction: column;
   box-shadow: 0 8px 40px rgba(0,0,0,0.6);
@@ -171,7 +181,7 @@
   display: flex; gap: 8px; background: var(--surface);
 }
 .chat-input {
-  flex: 1; background: var(--s2, #131920); border: 1px solid var(--border2);
+  flex: 1; background: var(--surface2); border: 1px solid var(--border2);
   border-radius: 7px; padding: 9px 12px; color: var(--text);
   font-size: 13px; font-family: var(--sans); outline: none;
   transition: border-color 0.15s;
@@ -212,6 +222,8 @@
     <span class="mock-badge">MOCK DATA</span>
     <div class="status-dot"></div>
     <span class="status-label" id="clock">–</span>
+    <button id="themeToggle" onclick="toggleTheme()" title="Theme wechseln"
+      style="background:none;border:1px solid var(--border2);border-radius:6px;padding:4px 10px;cursor:pointer;color:var(--text);font-size:15px;line-height:1;transition:border-color 0.15s">☀</button>
   </div>
 </div>
 <div class="layout">
@@ -653,4 +665,28 @@ async function fetchMetrics() {
 // Beim Laden + alle 30 Sekunden
 fetchMetrics();
 setInterval(fetchMetrics, 30000);
+
+function toggleTheme() {
+  const html = document.documentElement;
+  const btn = document.getElementById('themeToggle');
+  if (html.getAttribute('data-theme') === 'light') {
+    html.removeAttribute('data-theme');
+    btn.textContent = '☀';
+    localStorage.setItem('wlx-theme', 'dark');
+  } else {
+    html.setAttribute('data-theme', 'light');
+    btn.textContent = '🌙';
+    localStorage.setItem('wlx-theme', 'light');
+  }
+}
+
+(function() {
+  if (localStorage.getItem('wlx-theme') === 'light') {
+    document.documentElement.setAttribute('data-theme', 'light');
+    document.addEventListener('DOMContentLoaded', function() {
+      const btn = document.getElementById('themeToggle');
+      if (btn) btn.textContent = '🌙';
+    });
+  }
+})();
 </script>
