@@ -119,10 +119,6 @@ python demo.py
 # Dashboard:
 # Öffne dashboard/index.html im Browser
 # (API muss laufen für Live-Daten)
-
-# Ollama (falls nötig, eigenes Terminal):
-# Läuft normalerweise automatisch im Hintergrund
-# Test: ollama run mistral "Hallo"
 ```
 
 ## Abhängigkeiten installieren
@@ -148,7 +144,7 @@ Schritte für echten EWM-Connect (EWM_MOCK=False):
 - **Zielkunden:** Lager mit SAP EWM, 10-100+ Picker
 - **Pricing:** Starter 800€/Mon · Professional 1.500€/Mon · Enterprise Custom
 - **ROI:** 4,8 Tage Amortisation bei 30 Pickern
-- **Status:** MVP fertig, Mock-Daten, erster Pilot-Termin am 18. Mai (neoimpulse GmbH)
+- **Status:** MVP fertig, Mock-Daten, Discovery Call mit Flowprime sehr positiv, finanzierter Pilot bei Hoffmann in Diskussion, neoimpulse Pitch 18. Mai
 - **LinkedIn:** Post live, 1.661 Impressionen, 2 Termine generiert
 
 ## Coding-Stil Präferenzen
@@ -163,4 +159,66 @@ Schritte für echten EWM-Connect (EWM_MOCK=False):
 - [ ] SAP EWM SEGW Service anlegen (Leitfaden liegt vor)
 - [ ] Dashboard Screenshot für Demo-Slide einfügen
 - [ ] Nebengewerbe anmelden
-- [ ] neoimpulse Pitch am 18. Mai
+- [ ] Fachanwalt Arbeitsrecht konsultieren (IP-Klausel im Arbeitsvertrag prüfen)
+- [ ] Intern bei Hoffmann vorfühlen (erst nach Anwalt)
+- [ ] Nächsten Termin mit Daniel (Flowprime) vereinbaren
+
+---
+
+## Obsidian Daily Format
+
+**Pfad:** `D:\Obsidian\Kevin\02 Daily\YYYY-MM-DD.md`
+
+**Vorlage — EXAKT so erstellen:**
+
+```markdown
+# YYYY-MM-DD
+
+## 🎯 Fokus
+- [Fokus-Punkte als Bullets]
+
+## 🏆 Training
+- **[Aktivität]** [passendes Emoji]
+- [Stats einzeilig: Distanz · Zeit · Höhenmeter · Ø Tempo · Puls · Kalorien]
+- [[Fitness]]
+
+## 🧠 Was habe ich gelernt?
+- **[Thema fett]** Erklärung in einem oder zwei Sätzen
+
+## 💼 Business / Code
+- [Business und Code Punkte]
+
+## 💬 Gedanken
+- [Gedanken]
+
+## ⚡ 1 Aktion (wichtig!)
+- [Eine einzige konkrete Aktion]
+
+## 🔄 Reflexion
+- Was lief gut? [Antwort]
+- Was war unnötig? [Antwort]
+- Was mache ich morgen besser? [Antwort]
+
+## 🧬 Lebe ich meine Identität?
+- Ja — [warum]
+
+## 🧭 Nächster klarer Schritt
+- [Konkreter nächster Schritt]
+
+## 🚫 Was mache ich NICHT heute?
+- [Was vermieden wird]
+
+## 🔗 Verknüpfungen
+- [[WestLogiX]]
+- [[Selbstständigkeit]]
+- [[Fitness]]
+- [[weitere relevante Links]]
+```
+
+**Wichtige Regeln:**
+- Training immer **fett** + passendes Emoji (🏃‍♂️ Laufen, 💪 Gym, 🚵 Gravel, 🚴 Rad)
+- Stats als eine Zeile mit · getrennt: `11,86 km · 1:28:07 · +222 Hm · Ø 7:25/km · 123 bpm · 1.111 kcal`
+- Was gelernt: Thema **fett**, dann Erklärung
+- Reflexion immer mit den 3 festen Fragen
+- Verknüpfungen immer mit [[doppelten eckigen Klammern]]
+- Datei direkt speichern unter `D:\Obsidian\Kevin\02 Daily\YYYY-MM-DD.md`

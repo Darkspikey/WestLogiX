@@ -116,7 +116,7 @@ def _compute_break_until(emp_index: int, now: datetime):
     Die Pause dauert die ersten 15 Minuten der Stunde.
     Gibt None zurück wenn dieser MA gerade keine Pause hat.
     """
-    num_employees = 5
+    num_employees = 8
     if emp_index != now.hour % num_employees:
         return None  # Nicht dieser MA' Pause-Stunde
     if now.minute >= 15:
@@ -146,11 +146,14 @@ def _get_mock_employees():
     """Generiert Mock-Mitarbeiter mit realistisch variierenden Schichtzeiten."""
     now = datetime.now()
     return [
-        {"id": "EMP001", "name": "Max Müller",   "zone": "A", "shift_end": _pick_shift_end(0, now), "break_until": _compute_break_until(0, now), "picks_per_hour": 45},
-        {"id": "EMP002", "name": "Anna Schmidt", "zone": "B", "shift_end": _pick_shift_end(1, now), "break_until": _compute_break_until(1, now), "picks_per_hour": 52},
-        {"id": "EMP003", "name": "Tom Fischer",  "zone": "A", "shift_end": _pick_shift_end(2, now), "break_until": _compute_break_until(2, now), "picks_per_hour": 38},
-        {"id": "EMP004", "name": "Lisa Weber",   "zone": "C", "shift_end": _pick_shift_end(3, now), "break_until": _compute_break_until(3, now), "picks_per_hour": 60},
-        {"id": "EMP005", "name": "Ben Koch",     "zone": "B", "shift_end": _pick_shift_end(4, now), "break_until": _compute_break_until(4, now), "picks_per_hour": 41},
+        {"id": "EMP001", "name": "Max Müller",    "zone": "A", "shift_end": _pick_shift_end(0, now), "break_until": _compute_break_until(0, now), "picks_per_hour": 45},
+        {"id": "EMP002", "name": "Anna Schmidt",  "zone": "B", "shift_end": _pick_shift_end(1, now), "break_until": _compute_break_until(1, now), "picks_per_hour": 52},
+        {"id": "EMP003", "name": "Tom Fischer",   "zone": "A", "shift_end": _pick_shift_end(2, now), "break_until": _compute_break_until(2, now), "picks_per_hour": 38},
+        {"id": "EMP004", "name": "Lisa Weber",    "zone": "C", "shift_end": _pick_shift_end(3, now), "break_until": _compute_break_until(3, now), "picks_per_hour": 60},
+        {"id": "EMP005", "name": "Ben Koch",      "zone": "B", "shift_end": _pick_shift_end(4, now), "break_until": _compute_break_until(4, now), "picks_per_hour": 41},
+        {"id": "EMP006", "name": "Julia Bauer",   "zone": "C", "shift_end": _pick_shift_end(5, now), "break_until": _compute_break_until(5, now), "picks_per_hour": 55},
+        {"id": "EMP007", "name": "Stefan Braun",  "zone": "D", "shift_end": _pick_shift_end(6, now), "break_until": _compute_break_until(6, now), "picks_per_hour": 47},
+        {"id": "EMP008", "name": "Petra Hoffmann","zone": "D", "shift_end": _pick_shift_end(7, now), "break_until": _compute_break_until(7, now), "picks_per_hour": 43},
     ]
 
 # Modul-Level-Alias für Importe in api.py (wird bei jedem API-Aufruf neu erzeugt)
@@ -273,15 +276,20 @@ def calculate_eta(input_str: str) -> str:
     if not available:
         return "⚠️ Keine Mitarbeiter mehr im Dienst – ETA kann nicht berechnet werden."
 
-    best = max(available, key=lambda x: x["picks_per_hour"])
-    duration_min = total_picks / (best["picks_per_hour"] / 60)
+    # Deterministisch verschiedene Picker zuweisen – Auftragsnummer % Anzahl verfügbarer MA
+    # Verhindert dass immer derselbe Picker für alle Aufträge gezeigt wird
+    available_sorted = sorted(available, key=lambda e: e["id"])
+    num = int(re.search(r'\d+', order_ids[0]).group()) if re.search(r'\d+', order_ids[0]) else 0
+    assigned = available_sorted[num % len(available_sorted)]
+
+    duration_min = total_picks / (assigned["picks_per_hour"] / 60)
     eta = now + timedelta(minutes=duration_min)
 
     auftrag_str = ", ".join(order_ids) if len(order_ids) > 1 else order_ids[0]
     return (
         f"📦 Auftrag/Aufträge: {auftrag_str}\n"
         f"📊 Gesamt Picks: {total_picks}\n"
-        f"👷 Bester Picker: {best['name']} ({best['picks_per_hour']} Picks/h)\n"
+        f"👷 Zugewiesener Picker: {assigned['name']} ({assigned['picks_per_hour']} Picks/h)\n"
         f"⏱ Dauer: ca. {duration_min:.1f} Minuten\n"
         f"🎯 ETA: {eta.strftime('%H:%M')} Uhr\n"
         f"📊 Abweichung im Schnitt: ±4 Min"
@@ -303,6 +311,14 @@ def ewm_get_tasks(_=None) -> str:
             {"Tanum": "0000001002", "Vlpla": "B-03-02", "Nlpla": "GI-ZONE", "Matnr": "MAT-047", "Menge": 12.0, "Meins": "ST"},
             {"Tanum": "0000001003", "Vlpla": "C-02-05", "Nlpla": "GI-ZONE", "Matnr": "MAT-112", "Menge": 3.0,  "Meins": "ST"},
             {"Tanum": "0000001004", "Vlpla": "GR-ZONE", "Nlpla": "D-01-01", "Matnr": "MAT-033", "Menge": 8.0,  "Meins": "ST"},
+            {"Tanum": "0000001005", "Vlpla": "A-02-03", "Nlpla": "GI-ZONE", "Matnr": "MAT-078", "Menge": 6.0,  "Meins": "ST"},
+            {"Tanum": "0000001006", "Vlpla": "B-01-04", "Nlpla": "GI-ZONE", "Matnr": "MAT-205", "Menge": 20.0, "Meins": "ST"},
+            {"Tanum": "0000001007", "Vlpla": "C-03-01", "Nlpla": "GI-ZONE", "Matnr": "MAT-089", "Menge": 4.0,  "Meins": "ST"},
+            {"Tanum": "0000001008", "Vlpla": "D-02-02", "Nlpla": "GI-ZONE", "Matnr": "MAT-314", "Menge": 15.0, "Meins": "ST"},
+            {"Tanum": "0000001009", "Vlpla": "A-03-05", "Nlpla": "GI-ZONE", "Matnr": "MAT-055", "Menge": 2.0,  "Meins": "ST"},
+            {"Tanum": "0000001010", "Vlpla": "B-02-01", "Nlpla": "GI-ZONE", "Matnr": "MAT-190", "Menge": 9.0,  "Meins": "ST"},
+            {"Tanum": "0000001011", "Vlpla": "C-01-03", "Nlpla": "GI-ZONE", "Matnr": "MAT-067", "Menge": 7.0,  "Meins": "ST"},
+            {"Tanum": "0000001012", "Vlpla": "D-03-04", "Nlpla": "GI-ZONE", "Matnr": "MAT-421", "Menge": 11.0, "Meins": "ST"},
         ]
         lines = [f"📋 Offene Lageraufgaben ({len(tasks)} Tasks) [DEMO]:"]
         for t in tasks:

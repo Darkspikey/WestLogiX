@@ -396,7 +396,7 @@ function renderETA(etaData) {
     const timeM   = raw.match(/ETA: (\d{2}:\d{2})/);
     const pauseM  = raw.match(/ab (\d{2}:\d{2}) Uhr/);
     const picksM  = raw.match(/Gesamt Picks: (\d+)/);
-    const pickerM = raw.match(/Bester Picker: (.+?) \(/);
+    const pickerM = raw.match(/(?:Bester|Zugewiesener) Picker: (.+?) \(/);
     const pauseNM = raw.match(/👷 (.+?) ist ab/);
 
     const isUnavailable = !timeM;
@@ -415,7 +415,7 @@ function renderETA(etaData) {
 
 function renderCapacity(emp) {
   if (!emp) return;
-  const maxCap = 236;
+  const maxCap = 381; // Gesamtkapazität alle 8 MA: 45+52+38+60+41+55+47+43
   const pct = Math.round((emp.capacity_per_hour / maxCap) * 100);
   const offset = 188.5 * (1 - pct / 100);
   const circle = document.getElementById('ring-circle');
